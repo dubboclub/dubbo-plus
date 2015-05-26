@@ -9,6 +9,8 @@ import com.alibaba.dubbo.common.URL;
  */
 public class RedisCacheFactory implements CacheFactory{
     
+    
+    
     @Override
     public Cache getCache(URL url) {
         return null;
