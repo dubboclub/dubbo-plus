@@ -1,0 +1,2 @@
+redis=com.dubboclub.cache.redis.RedisCacheFactory
+memcache=com.dubboclub.cache.memcache.MCCacheFactory

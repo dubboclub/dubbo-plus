@@ -4,11 +4,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.bieber.dubbo.plus</groupId>
+        <groupId>com.dubboclub</groupId>
         <artifactId>dubbo-plus</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>cache</artifactId>
-
+    <properties>
+        <redis.version>2.5.2</redis.version>
+        <memcached.version>1.3.8</memcached.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${redis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.xmemcached</groupId>
+            <artifactId>xmemcached</artifactId>
+            <version>${memcached.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+    </dependencies>
 
 </project>
