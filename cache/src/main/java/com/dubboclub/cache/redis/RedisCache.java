@@ -20,8 +20,7 @@ public class RedisCache extends AbstractCache {
     private int expireSecond;
     
     protected  RedisCache(String cachedTarget,URL url){
-        this.cachedTarget=objectToBytes(url,cachedTarget);
-        cachedUrl=url;
+        super(cachedTarget,url);
         expireSecond=getExpireSecond(url);
     }
     

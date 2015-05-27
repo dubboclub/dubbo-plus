@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.common.utils.StringUtils;
+import com.dubboclub.cache.config.CacheConfig;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.ShardedJedis;
@@ -27,29 +28,19 @@ import java.util.concurrent.TimeUnit;
 public class RedisClient {
     private static final Logger logger = LoggerFactory.getLogger(RedisClient.class);
     private static final String REDIS_CONNECT="cache.redis.connect";
-    private static final String REDIS_PROPERTIES_FILE = "redis.properties.file";
-    private static final String CLASS_PATH_PREFIX="classpath:";
-    private static final String FILE_PATH_PREFIX="file:";
-
     private static  ShardedJedisPool JEDIS_POOL;
     static {
-        String redisConfig = ConfigUtils.getProperty(REDIS_PROPERTIES_FILE, System.getProperty(REDIS_PROPERTIES_FILE));
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
         try {
-            Properties properties =  ConfigUtils.getProperties();
-            if(StringUtils.isEmpty(redisConfig)){
-                properties=loadProperties(redisConfig);
-            }
-
             Field[] fields = poolConfig.getClass().getDeclaredFields();
             for(Field field:fields){
                 Method setMethod = getSetMethod(poolConfig.getClass(),field);
-                if(properties.contains(field.getName())&&setMethod!=null&&setMethod.isAccessible()){
-                    setMethod.invoke(poolConfig,casePrimitiveType(field.getType(), properties.get(field.getName()).toString()));
+                if(CacheConfig.getProperties().contains(field.getName())&&setMethod!=null&&setMethod.isAccessible()){
+                    setMethod.invoke(poolConfig,casePrimitiveType(field.getType(), CacheConfig.getProperty(field.getName())));
                 }
             }
             
-            Object redisConnect = properties.get(REDIS_CONNECT);
+            Object redisConnect = CacheConfig.getProperty(REDIS_CONNECT);
             if(redisConnect==null|| StringUtils.isEmpty(redisConnect.toString())){
                 throw new IllegalArgumentException("cache.redis.connect must not empty");
             }
@@ -63,8 +54,6 @@ public class RedisClient {
                 jedisShardInfoList.add(jedisShardInfo);
             }
             JEDIS_POOL=new ShardedJedisPool(poolConfig,jedisShardInfoList);
-        } catch (IOException e) {
-            logger.error("failed to open redis config file",e);
         } catch (IllegalAccessException e) {
             logger.error("failed to config redis pool",e);
         } catch (InvocationTargetException e) {
@@ -129,18 +118,5 @@ public class RedisClient {
         } catch (NoSuchMethodException e) {
             return null;
         }
-    }
-    private static Properties loadProperties(String propertyFile) throws IOException {
-        InputStream inputStream;
-        if(propertyFile.startsWith(CLASS_PATH_PREFIX)){
-            inputStream =  RedisClient.class.getClassLoader().getResourceAsStream(propertyFile.replace(CLASS_PATH_PREFIX, ""));
-        }else if(propertyFile.startsWith(FILE_PATH_PREFIX)){
-            inputStream = new FileInputStream(new File(propertyFile.replace(FILE_PATH_PREFIX,"")));
-        }else{
-            inputStream =  RedisClient.class.getClassLoader().getResourceAsStream(propertyFile);
-        }
-        Properties properties = new Properties();
-        properties.load(inputStream);
-        return properties;
     }
 }

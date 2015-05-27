@@ -1,15 +1,14 @@
-package com.dubboclub.cache.memcache;
+package com.dubboclub.cache.mixcache;
 
-import com.alibaba.dubbo.cache.Cache;
 import com.alibaba.dubbo.common.URL;
 import com.dubboclub.cache.AbstractCache;
 
 /**
- * Created by bieber on 2015/5/26.
+ * Created by bieber on 2015/5/27.
  */
-public class MCCache extends AbstractCache {
+public class MixCache extends AbstractCache {
     
-    public MCCache(String cacheName, URL url) {
+    public MixCache(String cacheName, URL url) {
         super(cacheName, url);
     }
 
