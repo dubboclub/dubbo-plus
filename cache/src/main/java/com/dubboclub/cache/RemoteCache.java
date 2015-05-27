@@ -17,6 +17,9 @@ public abstract class RemoteCache extends AbstractCache {
 
     @Override
     public void put(Object key, Object value) {
+        if(value==null){
+            return ;
+        }
         byte[] bytes = generateCacheKey(key);
         if(bytes!=null){
             remoteClient.cacheValue(generateCacheKey(key),objectToBytes(cachedUrl,value),expireSecond);

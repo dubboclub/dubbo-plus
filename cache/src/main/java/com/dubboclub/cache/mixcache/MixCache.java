@@ -7,7 +7,7 @@ import com.dubboclub.cache.AbstractCache;
  * Created by bieber on 2015/5/27.
  */
 public class MixCache extends AbstractCache {
-    
+
     public MixCache(String cacheName, URL url) {
         super(cacheName, url);
     }

@@ -1,5 +1,6 @@
 package com.dubboclub.cache.remote;
 
+import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.StringUtils;
@@ -39,7 +40,7 @@ public class RedisClient extends RemoteClient{
             }
             
             String connectString = redisConnect.toString();
-            String[] connects = connectString.split(",");
+            String[] connects = Constants.COMMA_SPLIT_PATTERN.split(connectString);
             List<JedisShardInfo> jedisShardInfoList = new ArrayList<JedisShardInfo>();
             for(String connect:connects){
                 String[] splits = connect.split(":");
