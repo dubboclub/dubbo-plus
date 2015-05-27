@@ -2,7 +2,6 @@ package com.dubboclub.cache.remote;
 
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
-import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.dubboclub.cache.config.CacheConfig;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -10,22 +9,16 @@ import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPool;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by bieber on 2015/5/26.
  */
-public class RedisClient {
+public class RedisClient extends RemoteClient{
     private static final Logger logger = LoggerFactory.getLogger(RedisClient.class);
     private static final String REDIS_CONNECT="cache.redis.connect";
     private static  ShardedJedisPool JEDIS_POOL;
@@ -61,7 +54,7 @@ public class RedisClient {
         }
     }
     
-    public static void cacheValue(byte[] key,byte[] bytes,int expireSecond){
+    public void cacheValue(byte[] key,byte[] bytes,int expireSecond){
         ShardedJedis jedis = JEDIS_POOL.getResource();
         try{
             if(expireSecond>0){
@@ -74,7 +67,7 @@ public class RedisClient {
         }
     }
     
-    public static byte[] getValue(byte[] key){
+    public byte[] getValue(byte[] key){
         ShardedJedis jedis = JEDIS_POOL.getResource();
         try{
             return jedis.get(key);
@@ -83,40 +76,7 @@ public class RedisClient {
         }
     }
     
-    private static Object casePrimitiveType(Class<?> targetType, Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (targetType == int.class || targetType == Integer.class) {
-            return Integer.parseInt(value.toString().trim());
-        } else if (targetType == short.class || targetType == Short.class) {
-            return Short.parseShort(value.toString().trim());
-        } else if (targetType == long.class || targetType == Long.class) {
-            return Long.parseLong(value.toString().trim());
-        } else if (targetType == float.class || targetType == Float.class) {
-            return Float.parseFloat(value.toString().trim());
-        } else if (targetType == double.class || targetType == Double.class) {
-            return Double.parseDouble(value.toString().trim());
-        } else if (targetType == boolean.class || targetType == Boolean.class) {
-            return Boolean.parseBoolean(value.toString().trim());
-        } else if (targetType == char.class || targetType == Character.class) {
-            return value.toString().charAt(0);
-        } else if (targetType.isEnum()) {
-            Class<? extends Enum> enumClass = (Class<? extends Enum>) targetType;
-            return Enum.valueOf(enumClass, value.toString());
-        } else {
-            return value;
-        }
-    }
+
     
-    private static Method getSetMethod(Class<?> clazz,Field field)   {
-        StringBuffer methodName = new StringBuffer("set");
-        String fieldName = field.getName();
-        methodName.append(fieldName.substring(0,1).toUpperCase()).append(fieldName.substring(1));
-        try {
-            return clazz.getMethod(methodName.toString(),field.getType());
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-    }
+
 }

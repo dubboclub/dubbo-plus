@@ -24,6 +24,8 @@ public abstract class AbstractCache implements Cache{
     protected byte[] cacheName;
     
     protected URL cachedUrl;
+
+    protected int expireSecond;
     
     //默认缓存一个小时
     private static final int DEFAULT_EXPIRE_SECONDS=60*60;
@@ -39,6 +41,7 @@ public abstract class AbstractCache implements Cache{
         }
         this.cacheName =objectToBytes(url,cacheName);
         cachedUrl=url;
+        expireSecond=getExpireSecond(url);
     }
     
     protected byte[] objectToBytes(URL url,Object object){

@@ -6,7 +6,9 @@ import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.common.serialize.Serialization;
 import com.dubboclub.cache.AbstractCache;
+import com.dubboclub.cache.RemoteCache;
 import com.dubboclub.cache.remote.RedisClient;
+import com.dubboclub.cache.remote.RemoteClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,29 +17,11 @@ import java.io.IOException;
 /**
  * Created by bieber on 2015/5/26.
  */
-public class RedisCache extends AbstractCache {
+public class RedisCache extends RemoteCache {
     
-    private int expireSecond;
-    
+    private RemoteClient remoteClient;
     protected  RedisCache(String cachedTarget,URL url){
-        super(cachedTarget,url);
-        expireSecond=getExpireSecond(url);
+        super(cachedTarget,url,new RedisClient());
     }
     
-    @Override
-    public void put(Object key, Object value) {
-        byte[] bytes = generateCacheKey(key);
-        if(bytes!=null){
-            RedisClient.cacheValue(generateCacheKey(key),objectToBytes(cachedUrl,value),expireSecond);
-        }
-    }
-
-    @Override
-    public Object get(Object key) {
-        byte[] bytes = generateCacheKey(key);
-        if(bytes!=null){
-             return bytesToObject(cachedUrl,RedisClient.getValue(bytes));
-        }
-        return null;
-    }
 }
