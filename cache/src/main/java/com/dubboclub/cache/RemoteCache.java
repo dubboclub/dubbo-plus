@@ -30,7 +30,11 @@ public abstract class RemoteCache extends AbstractCache {
     public Object get(Object key) {
         byte[] bytes = generateCacheKey(key);
         if(bytes!=null){
-            return bytesToObject(cachedUrl,remoteClient.getValue(bytes));
+            byte[] value=remoteClient.getValue(bytes);
+            if(value==null){
+                return null;
+            }
+            return bytesToObject(cachedUrl,value);
         }
         return null;
     }

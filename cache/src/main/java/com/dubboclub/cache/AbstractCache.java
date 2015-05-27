@@ -49,6 +49,7 @@ public abstract class AbstractCache implements Cache{
         try {
             ObjectOutput objectOutput = serialization.serialize(url, byteArrayOutputStream);
             objectOutput.writeObject(object);
+            objectOutput.flushBuffer();
         } catch (IOException e) {
             logger.error("Failed to serialize object ["+object.toString()+"] for url ["+url.toString()+"]",e);
             return null;

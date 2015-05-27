@@ -39,7 +39,7 @@ public class CacheConfig {
     }
     public static void initProperties(){
         if(properties==null){
-            synchronized (CacheConfig.properties){
+            synchronized (CacheConfig.class){
                 if(properties==null){
                     String cacheConfig = ConfigUtils.getProperty(CACHE_PROPERTIES_FILE, System.getProperty(CACHE_PROPERTIES_FILE));
                     try {
@@ -64,7 +64,12 @@ public class CacheConfig {
     }
     
     public static String getProperty(String key){
-        return properties.get(key).toString();
+        Object value = properties.get(key);
+        if(value==null){
+            return null;
+        }else{
+            return value.toString();
+        }
     }
     
     public static String getProperty(String key,String defaultValue){

@@ -106,7 +106,7 @@ public class MemcachedClient extends RemoteClient{
 
     private static void buildClient(){
         if(client==null||client.isShutdown()){
-            synchronized (MemcachedClient.client){
+            synchronized (MemcachedClient.class){
                 if(client==null||client.isShutdown()){
                     try {
                         client=clientBuilder.build();
