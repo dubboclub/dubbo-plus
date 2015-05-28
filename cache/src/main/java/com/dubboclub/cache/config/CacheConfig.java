@@ -196,15 +196,18 @@ public class CacheConfig {
         }
     }
 
-    protected static Method getSetMethod(Class<?> clazz,Field field)   {
+    private static Method getSetMethod(Class<?> clazz,Field field)   {
         StringBuffer methodName = new StringBuffer("set");
         String fieldName = field.getName();
         methodName.append(fieldName.substring(0,1).toUpperCase()).append(fieldName.substring(1));
-        try {
-            return clazz.getMethod(methodName.toString(),field.getType());
-        } catch (NoSuchMethodException e) {
-            return null;
+        Method[] methods = clazz.getDeclaredMethods();
+        for(Method method:methods){
+            if(method.getName().equals(methodName.toString())){
+                return method;
+            }
         }
+
+        return null;
     }
 
     public static boolean checkIsBasicType(Class<?> targetType) {
