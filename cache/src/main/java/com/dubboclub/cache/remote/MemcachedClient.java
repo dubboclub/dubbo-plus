@@ -44,10 +44,10 @@ public class MemcachedClient extends RemoteClient{
             connectStr.append(configConnect);
         }
         clientBuilder =  new XMemcachedClientBuilder(AddrUtil.getAddresses(connectStr.toString()));
-        appendProperties(clientBuilder,MemcachedClient.class);
+        CacheConfig.appendProperties(clientBuilder, MemcachedClient.class);
         clientBuilder.setSessionLocator(new AdaptiveMemcachedSessionLocator());
         Configuration configuration = new Configuration();
-        appendProperties(configuration,MemcachedClient.class);
+        CacheConfig.appendProperties(configuration, MemcachedClient.class);
         clientBuilder.setConfiguration(configuration);
         clientBuilder.addStateListener(new MemcachedClientStateListener() {
             @Override

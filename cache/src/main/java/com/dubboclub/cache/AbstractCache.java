@@ -33,7 +33,7 @@ public abstract class AbstractCache implements Cache{
     
     private static final Serialization serialization = ExtensionLoader.getExtensionLoader(Serialization.class).getAdaptiveExtension();
     
-    private static final Logger logger = LoggerFactory.getLogger(AbstractCache.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractCache.class);
     
     public AbstractCache(String cacheName,URL url){
         if(StringUtils.isEmpty(cacheName)){

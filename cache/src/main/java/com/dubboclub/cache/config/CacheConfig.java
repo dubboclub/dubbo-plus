@@ -4,19 +4,11 @@ import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.common.utils.StringUtils;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import redis.clients.jedis.JedisShardInfo;
-import redis.clients.jedis.ShardedJedisPool;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -33,6 +25,7 @@ public class CacheConfig {
     
     private static volatile Properties properties;
 
+    private static final String[] SUFFIXS={"Client"};
     
     static {
         initProperties();
@@ -124,6 +117,13 @@ public class CacheConfig {
         return defaultValue;
     }
     private static Properties loadProperties(String propertyFile) throws IOException {
+        InputStream inputStream = getConfigurationInputStream(propertyFile);
+        Properties properties = new Properties();
+        properties.load(inputStream);
+        return properties;
+    }
+    
+    public static InputStream getConfigurationInputStream(String propertyFile) throws FileNotFoundException {
         InputStream inputStream;
         if(propertyFile.startsWith(CLASS_PATH_PREFIX)){
             inputStream =  CacheConfig.class.getClassLoader().getResourceAsStream(propertyFile.replace(CLASS_PATH_PREFIX, ""));
@@ -132,8 +132,77 @@ public class CacheConfig {
         }else{
             inputStream =  CacheConfig.class.getClassLoader().getResourceAsStream(propertyFile);
         }
-        Properties properties = new Properties();
-        properties.load(inputStream);
-        return properties;
+        return inputStream;
+    }
+
+    public static void appendProperties(Object object,Class<?> owner){
+        Field[] fields = object.getClass().getDeclaredFields();
+        String prefix="cache."+getTagName(owner)+".";
+        for(Field field:fields){
+            Method setMethod = getSetMethod(object.getClass(),field);
+            if(setMethod!=null&&setMethod.isAccessible()&&field.getType().isPrimitive()){
+                String property = StringUtils.camelToSplitName(field.getName(), ".");
+                String configValue=null;
+                if(CacheConfig.getProperties().contains(prefix+property)){
+                    try {
+                        configValue=CacheConfig.getProperty(prefix+property);
+                        setMethod.invoke(object,casePrimitiveType(field.getType(),configValue));
+                    } catch (IllegalAccessException e) {
+                        logger.debug("Failed to set value ["+configValue+"] property ["+field.getName()+"] ",e);
+                    } catch (InvocationTargetException e) {
+                        logger.debug("Failed to set value [" + configValue + "] property [" + field.getName() + "] ",e);
+                    }
+                }
+            }
+        }
+    }
+
+    private static String getTagName(Class<?> cls) {
+        String tag = cls.getSimpleName();
+        for (String suffix : SUFFIXS) {
+            if (tag.endsWith(suffix)) {
+                tag = tag.substring(0, tag.length() - suffix.length());
+                break;
+            }
+        }
+        tag = tag.toLowerCase();
+        return tag;
+    }
+
+    protected static Object casePrimitiveType(Class<?> targetType, Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (targetType == int.class || targetType == Integer.class) {
+            return Integer.parseInt(value.toString().trim());
+        } else if (targetType == short.class || targetType == Short.class) {
+            return Short.parseShort(value.toString().trim());
+        } else if (targetType == long.class || targetType == Long.class) {
+            return Long.parseLong(value.toString().trim());
+        } else if (targetType == float.class || targetType == Float.class) {
+            return Float.parseFloat(value.toString().trim());
+        } else if (targetType == double.class || targetType == Double.class) {
+            return Double.parseDouble(value.toString().trim());
+        } else if (targetType == boolean.class || targetType == Boolean.class) {
+            return Boolean.parseBoolean(value.toString().trim());
+        } else if (targetType == char.class || targetType == Character.class) {
+            return value.toString().charAt(0);
+        } else if (targetType.isEnum()) {
+            Class<? extends Enum> enumClass = (Class<? extends Enum>) targetType;
+            return Enum.valueOf(enumClass, value.toString());
+        } else {
+            return value;
+        }
+    }
+
+    protected static Method getSetMethod(Class<?> clazz,Field field)   {
+        StringBuffer methodName = new StringBuffer("set");
+        String fieldName = field.getName();
+        methodName.append(fieldName.substring(0,1).toUpperCase()).append(fieldName.substring(1));
+        try {
+            return clazz.getMethod(methodName.toString(),field.getType());
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 }

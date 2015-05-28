@@ -29,7 +29,7 @@ public class RedisClient extends RemoteClient{
     
     static {
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-        appendProperties(poolConfig,RedisClient.class);
+        CacheConfig.appendProperties(poolConfig,RedisClient.class);
         Object redisConnect = CacheConfig.getProperty(REDIS_CONNECT);
         if(redisConnect==null|| StringUtils.isEmpty(redisConnect.toString())){
             throw new IllegalArgumentException("cache.redis.connect must not empty");
