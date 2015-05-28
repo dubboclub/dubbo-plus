@@ -21,7 +21,12 @@ public class MixCache extends AbstractCache {
         this.l1Cache=l1Cache;
         this.l2Cache=l2Cache;
     }
-    
+
+    @Override
+    protected String getTagName() {
+        return "mixcache";
+    }
+
     public MixCache(String cacheName, URL url) {
         super(cacheName, url);
     }

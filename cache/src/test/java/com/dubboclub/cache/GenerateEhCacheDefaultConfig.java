@@ -18,7 +18,7 @@ public class GenerateEhCacheDefaultConfig {
         CacheManager manager = CacheManager.create();
         Configuration configuration = manager.getConfiguration();
       
-        Object object=configuration.getDefaultCacheConfiguration();
+        Object object=configuration;
         Field[] fields = object.getClass().getDeclaredFields();
         String prefix="cache.ehcache.";
         for(Field field:fields){
@@ -33,10 +33,13 @@ public class GenerateEhCacheDefaultConfig {
         StringBuffer methodName = new StringBuffer("set");
         String fieldName = field.getName();
         methodName.append(fieldName.substring(0,1).toUpperCase()).append(fieldName.substring(1));
-        try {
-            return clazz.getMethod(methodName.toString(),field.getType());
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
+            Method[] methods = clazz.getDeclaredMethods();
+            for(Method method:methods){
+                if(method.getName().equals(methodName.toString())){
+                    return method;
+                }
+            }
+
+        return null;
     }
 }

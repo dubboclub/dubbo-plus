@@ -65,6 +65,9 @@ public abstract class AbstractCacheFactory implements CacheFactory{
             return null;
         }
         String cacheName = generateCacheName(url);
+        if(CACHE_MAP.containsKey(cacheName)){
+            return CACHE_MAP.get(cacheName);
+        }
         Cache cache = generateNewCache(cacheName,url);
         cache=putCacheIfAbsent(cacheName,cache);
         return cache;

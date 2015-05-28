@@ -1,7 +1,6 @@
 package com.dubboclub.cache.memcache;
 
 import com.alibaba.dubbo.cache.Cache;
-import com.alibaba.dubbo.cache.CacheFactory;
 import com.alibaba.dubbo.common.URL;
 import com.dubboclub.cache.AbstractCacheFactory;
 
@@ -12,6 +11,6 @@ public class MCCacheFactory extends AbstractCacheFactory {
 
     @Override
     protected Cache generateNewCache(String cacheName, URL url) {
-        return new MCCache(cacheName,url);
+        return new MemcachedCache(cacheName,url);
     }
 }

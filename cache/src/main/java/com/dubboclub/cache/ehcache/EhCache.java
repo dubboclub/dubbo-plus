@@ -22,14 +22,21 @@ public class EhCache extends AbstractCache {
     
     private static final String CONFIGURATION_FILE="cache.ehcache.configuration";
     
-    private Cache originCache;
+    private Ehcache originCache;
     
     static {
         if(StringUtils.isEmpty(CacheConfig.getProperty(CONFIGURATION_FILE))){
             Configuration configuration = new Configuration();
             CacheConfig.appendProperties(configuration, Ehcache.class);
+
             CacheConfiguration cacheConfiguration = new CacheConfiguration();
             CacheConfig.appendProperties(cacheConfiguration,EhCache.class);
+            if(cacheConfiguration.getMaxEntriesLocalHeap()==0){
+                cacheConfiguration.setMaxEntriesLocalHeap(10000);
+            }
+            if(cacheConfiguration.getMaxEntriesLocalDisk()==0){
+                cacheConfiguration.setMaxEntriesLocalDisk(10000000);
+            }
             configuration.setDefaultCacheConfiguration(cacheConfiguration);
             cacheManager=CacheManager.create(configuration);
         }else{
@@ -47,9 +54,15 @@ public class EhCache extends AbstractCache {
             }
         }));
     }
+
+    @Override
+    protected String getTagName() {
+        return "ehcache";
+    }
+
     public EhCache(String cacheName, URL url) {
         super(cacheName, url);
-        originCache =  cacheManager.getCache(cacheName);
+        originCache = cacheManager.addCacheIfAbsent(cacheName);
     }
 
     @Override

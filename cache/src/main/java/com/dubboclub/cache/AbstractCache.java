@@ -28,12 +28,14 @@ public abstract class AbstractCache implements Cache{
     protected int expireSecond;
     
     //默认缓存一个小时
-    private static final int DEFAULT_EXPIRE_SECONDS=60*60;
+    private static final int DEFAULT_EXPIRE_SECONDS=60*10;
     
     
     private static final Serialization serialization = ExtensionLoader.getExtensionLoader(Serialization.class).getAdaptiveExtension();
     
     protected static final Logger logger = LoggerFactory.getLogger(AbstractCache.class);
+
+    protected abstract String getTagName();
     
     public AbstractCache(String cacheName,URL url){
         if(StringUtils.isEmpty(cacheName)){
@@ -73,10 +75,16 @@ public abstract class AbstractCache implements Cache{
     
     
     protected int getExpireSecond(URL url){
-        int expireSeconds = CacheConfig.getProperty("cache."+url.getParameter(Constants.INTERFACE_KEY)+
-                        "."+url.getParameter(Constants.METHOD_KEY)+".expire",
-                CacheConfig.getProperty("cache." + url.getParameter(Constants.INTERFACE_KEY) + ".expire", 
-                        CacheConfig.getProperty("cache.default.expire",DEFAULT_EXPIRE_SECONDS)));
+        String prefix = "cache."+getTagName()+".";
+
+        int expireSeconds = CacheConfig.getProperty(prefix+url.getParameter(Constants.INTERFACE_KEY)+
+                "."+url.getParameter(Constants.METHOD_KEY)+".expire",
+                CacheConfig.getProperty("cache."+url.getParameter(Constants.INTERFACE_KEY)+
+                "."+url.getParameter(Constants.METHOD_KEY)+".expire",
+                        CacheConfig.getProperty(prefix + url.getParameter(Constants.INTERFACE_KEY) + ".expire",
+                                CacheConfig.getProperty("cache." + url.getParameter(Constants.INTERFACE_KEY) + ".expire",
+                                        CacheConfig.getProperty(prefix+"default.expire",
+                                                CacheConfig.getProperty("cache.default.expire",DEFAULT_EXPIRE_SECONDS))))));
         return expireSeconds;
     }
     

@@ -12,9 +12,14 @@ import java.rmi.Remote;
 /**
  * Created by bieber on 2015/5/26.
  */
-public class MCCache extends RemoteCache {
+public class MemcachedCache extends RemoteCache {
 
-    public MCCache(String cacheName, URL url) {
+    @Override
+    protected String getTagName() {
+        return "memcached";
+    }
+
+    public MemcachedCache(String cacheName, URL url) {
         super(cacheName, url, new MemcachedClient());
     }
     
