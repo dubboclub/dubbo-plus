@@ -25,8 +25,6 @@ public class RedisClient extends RemoteClient{
     
     private static  ShardedJedisPool JEDIS_POOL;
     
-    private static String PROPERTY_PREFIX="cache.redis.";
-    
     static {
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
         CacheConfig.appendProperties(poolConfig,RedisClient.class);

@@ -1,4 +1,4 @@
 redis=com.dubboclub.cache.redis.RedisCacheFactory
-memcache=com.dubboclub.cache.memcache.MCCacheFactory
+memcached=com.dubboclub.cache.memcache.MCCacheFactory
 ehcache=com.dubboclub.cache.memcache.EhCacheFactory
 mixcache=com.dubboclub.cache.memcache.MixCacheFactory

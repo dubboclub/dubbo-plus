@@ -28,6 +28,9 @@ public class EhCache extends AbstractCache {
         if(StringUtils.isEmpty(CacheConfig.getProperty(CONFIGURATION_FILE))){
             Configuration configuration = new Configuration();
             CacheConfig.appendProperties(configuration, Ehcache.class);
+            CacheConfiguration cacheConfiguration = new CacheConfiguration();
+            CacheConfig.appendProperties(cacheConfiguration,EhCache.class);
+            configuration.setDefaultCacheConfiguration(cacheConfiguration);
             cacheManager=CacheManager.create(configuration);
         }else{
             try {

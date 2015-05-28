@@ -9,6 +9,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -140,7 +141,7 @@ public class CacheConfig {
         String prefix="cache."+getTagName(owner)+".";
         for(Field field:fields){
             Method setMethod = getSetMethod(object.getClass(),field);
-            if(setMethod!=null&&setMethod.isAccessible()&&field.getType().isPrimitive()){
+            if(setMethod!=null&&checkIsBasicType(field.getType())){
                 String property = StringUtils.camelToSplitName(field.getName(), ".");
                 String configValue=null;
                 if(CacheConfig.getProperties().contains(prefix+property)){
@@ -204,5 +205,14 @@ public class CacheConfig {
         } catch (NoSuchMethodException e) {
             return null;
         }
+    }
+
+    public static boolean checkIsBasicType(Class<?> targetType) {
+        return targetType.isEnum() || targetType.isPrimitive()
+                || String.class == targetType || targetType == Integer.class
+                || targetType == Short.class || targetType == Long.class
+                || targetType == Boolean.class || targetType == Double.class
+                || targetType == Float.class || targetType == File.class
+                || targetType == Character.class ;
     }
 }

@@ -73,9 +73,6 @@ public abstract class AbstractCache implements Cache{
     
     
     protected int getExpireSecond(URL url){
-        StringBuffer configKey = new StringBuffer("");
-        configKey.append(url.getParameter(Constants.INTERFACE_KEY)).append(".");
-        configKey.append(url.getParameter(Constants.METHOD_KEY)).append(".expire");
         int expireSeconds = CacheConfig.getProperty("cache."+url.getParameter(Constants.INTERFACE_KEY)+
                         "."+url.getParameter(Constants.METHOD_KEY)+".expire",
                 CacheConfig.getProperty("cache." + url.getParameter(Constants.INTERFACE_KEY) + ".expire", 
