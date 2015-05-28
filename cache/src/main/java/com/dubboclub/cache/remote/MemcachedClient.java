@@ -30,26 +30,7 @@ public class MemcachedClient extends RemoteClient{
     private static volatile net.rubyeye.xmemcached.MemcachedClient client;
 
     private static final String MEMCACHED_CONNECT="cache.memcached.connect";
-
-    private static final String MEMCACHED_POOL_SIZE="cache.memcached.connect.pool.size";
-
-    private static final String MEMCACHED_CONNECT_TIMEOUT="cache.memcached.conncet.timeout";
-
-    private static final String MEMCACHED_CHECK_SESSION_TIMEOUT_INTERVAL="cache.memcached.check.session.timeout.interval";
-
-    private static final String MEMCACHED_DISPATCH_MESSAGE_THREAD_COUNT="cache.memcached.dispatch.message.thread.count";
-
-    private static final String MEMCACHED_READ_THREAD_COUNT="cache.memcached.read.thread.count";
-
-    private static final String MEMCACHED_WRITE_THREAD_COUNT="cache.memcached.write.thread.count";
-
-    private static final String MEMCACHED_SESSION_IDLE_TIMEOUT="cache.memcached.session.idle.timeout";
-
-    private static final String MEMCACHED_SESSION_READ_BUFFER_SIZE="cache.memcached.session.read.buffer.size";
-
-    private static final String MEMCACHED_SO_TIMEOUT="cache.memcached.so.timeout";
-
-    private static final Logger logger = LoggerFactory.getLogger(MemcachedClient.class);
+    
     static {
         String configConnect= CacheConfig.getProperty(MEMCACHED_CONNECT);
         String[] connects = Constants.COMMA_SPLIT_PATTERN.split(configConnect);
@@ -63,17 +44,10 @@ public class MemcachedClient extends RemoteClient{
             connectStr.append(configConnect);
         }
         clientBuilder =  new XMemcachedClientBuilder(AddrUtil.getAddresses(connectStr.toString()));
-        clientBuilder.setConnectionPoolSize(CacheConfig.getProperty(MEMCACHED_POOL_SIZE,net.rubyeye.xmemcached.MemcachedClient.DEFAULT_CONNECTION_POOL_SIZE));
-        clientBuilder.setConnectTimeout(CacheConfig.getProperty(MEMCACHED_CONNECT_TIMEOUT, net.rubyeye.xmemcached.MemcachedClient.DEFAULT_CONNECT_TIMEOUT));
+        appendProperties(clientBuilder,MemcachedClient.class);
         clientBuilder.setSessionLocator(new AdaptiveMemcachedSessionLocator());
         Configuration configuration = new Configuration();
-        configuration.setCheckSessionTimeoutInterval(CacheConfig.getProperty(MEMCACHED_CHECK_SESSION_TIMEOUT_INTERVAL, 1000l));
-        configuration.setDispatchMessageThreadCount(CacheConfig.getProperty(MEMCACHED_DISPATCH_MESSAGE_THREAD_COUNT, 0));
-        configuration.setReadThreadCount(CacheConfig.getProperty(MEMCACHED_READ_THREAD_COUNT, 1));
-        configuration.setWriteThreadCount(CacheConfig.getProperty(MEMCACHED_WRITE_THREAD_COUNT, 0));
-        configuration.setSessionIdleTimeout(CacheConfig.getProperty(MEMCACHED_SESSION_IDLE_TIMEOUT, 5000l));
-        configuration.setSessionReadBufferSize(CacheConfig.getProperty(MEMCACHED_SESSION_READ_BUFFER_SIZE, 32 * 1024));
-        configuration.setSoTimeout(CacheConfig.getProperty(MEMCACHED_SO_TIMEOUT, 0));
+        appendProperties(configuration,MemcachedClient.class);
         clientBuilder.setConfiguration(configuration);
         clientBuilder.addStateListener(new MemcachedClientStateListener() {
             @Override

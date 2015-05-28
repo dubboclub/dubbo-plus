@@ -115,6 +115,14 @@ public class CacheConfig {
         }
         return defaultValue;
     }
+    
+    public static boolean getProperty(String key ,boolean defaultValue){
+        String value = getProperty(key);
+        if(!StringUtils.isEmpty(value)){
+            return Boolean.parseBoolean(value);
+        }
+        return defaultValue;
+    }
     private static Properties loadProperties(String propertyFile) throws IOException {
         InputStream inputStream;
         if(propertyFile.startsWith(CLASS_PATH_PREFIX)){
