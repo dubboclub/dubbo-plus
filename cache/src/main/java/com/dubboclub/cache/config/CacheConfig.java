@@ -144,7 +144,7 @@ public class CacheConfig {
             if(setMethod!=null&&checkIsBasicType(field.getType())){
                 String property = StringUtils.camelToSplitName(field.getName(), ".");
                 String configValue=null;
-                if(CacheConfig.getProperties().contains(prefix+property)){
+                if(CacheConfig.getProperties().containsKey(prefix+property)){
                     try {
                         configValue=CacheConfig.getProperty(prefix+property);
                         setMethod.invoke(object,casePrimitiveType(field.getType(),configValue));
