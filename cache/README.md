@@ -63,126 +63,124 @@
 
 ###2、使用Redis缓存需要配置的信息
     
-    <!--lang-->、
+    <!--lang-->
 	#【必填】配置redis连接地址，ip:port格式，如果是redis集群，可以是ip1:port1,ip2:port2....ipn:portn通过英文逗号将各个连接地址分开
     cache.redis.connect    
 	#【选填】配置redis客户端连接池最大连接数，默认8
-    cache.redis.max.total  
+    cache.redis.maxTotal
 	#【选填】配置redis客户端连接池最大空闲连接数，默认8
-    cache.redis.max.idle  
+    cache.redis.maxIdle
 	#【选填】配置redis客户端连接池最小空闲连接数，默认0
-    cache.redis.min.idle   
+    cache.redis.minIdle
 	#【选填】配置redis客户端最大等待时间，单位毫秒,默认-1，表示无限等待
-    cache.redis.max.wait.millis  
+    cache.redis.maxWaitMillis
 	#【选填】 默认值1000L * 60L * 30L
-    cache.redis.min.evictable.idle.time.millis  
+    cache.redis.minEvictableIdleTimeMillis
 	#【选填】 默认值1000L * 60L * 30L
-    cache.redis.soft.min.evictable.idle.time.millis \
+    cache.redis.soft.minEvictableIdleTimeMillis
 	#【选填】 默认值3
-    cache.redis.num.tests.per.eviction.run
+    cache.redis.num.testsPerEvictionRun
 	#【选填】 默认值org.apache.commons.pool2.impl.DefaultEvictionPolicy
-    cache.redis.eviction.policy.class.name  
+    cache.redis.evictionPolicyClassName
 	#【选填】 默认值false
-    cache.redis.test.on.borrow 
+    cache.redis.testOnBorrow
 	#【选填】 默认值false
-    cache.redis.test.on.return 
+    cache.redis.testOnReturn
 	#【选填】 默认值false
-    cache.redis.test.while.idle 
+    cache.redis.testWhileIdle
 	#【选填】 默认值-1L
-    cache.redis.time.between.eviction.runs.millis 
+    cache.redis.timeBetweenEvictionRunsMillis
 	#【选填】 默认值true
-    cache.redis.block.when.exhausted 
- 	#【选填】 默认值true
-    cache.redis.jmx.enabled
-	#【选填】 默认值pool
-    cache.redis.jmx.name.prefix 
+    cache.redis.blockWhenExhausted
+    #【选填】默认值true
+    cache.redis.jmxEnabled
+	#【选填】默认值pool
+    cache.redis.jmxNamePrefix
     
 ###3、使用memcached缓存需要配置的信息
     <!--lang-->
 	#【必填】配置redis连接地址，ip:port格式，如果是redis集群，可以是ip1:port1,ip2:port2....ipn:portn通过英文逗号将各个连接地址分开
     cache.memcached.connect    
 	#【选填】 默认值60000
-    cache.memcached.connect.timeout 
+    cache.memcached.connectTimeout
 	#【选填】 默认值1
-    cache.memcached.connection.pool.size 
+    cache.memcached.connectionPoolSize
 	#【选填】 默认值false
-    cache.memcached.failure.mode 
+    cache.memcached.failureMode
 	#【选填】 默认值40000或者(int) (40000 * (Runtime.getRuntime().maxMemory() / 1024.0 / 1024.0 / 1024.0))
-    cache.memcached.max.queued.no.repl.operations 
+    cache.memcached.maxQueuedNoReplOperations
 	#【选填】默认default，对应ArrayMemcachedSessionLocator，可选值：ketama对应KetamaMemcachedSessionLocator，election对应ElectionMemcachedSessionLocator，libmemcached对应LibmemcachedMemcachedSessionLocator，php对应PHPMemcacheSessionLocator
-    cache.memcached.session.locator 
+    cache.memcached.session.locator
 	#【选填】默认32 * 1024
-    cache.memcached.session.read.buffer.size
+    cache.memcached.sessionReadBufferSize
 	#【选填】默认0
-    cache.memcached.so.timeout 
+    cache.memcached.soTimeout
 	#【选填】默认0
-    cache.memcached.write.thread.count
+    cache.memcached.writeThreadCount
 	#【选填】默认false
-    cache.memcached.statistics.server 、
- 	#【选填】默认true
-    cache.memcached.handle.read.write.concurrently
+    cache.memcached.statisticsServer
+    #【选填】默认true
+    cache.memcached.handleReadWriteConcurrently
 	#【选填】默认0
-    cache.memcached.dispatch.message.thread.count 
+    cache.memcached.dispatchMessageThreadCount
 	#【选填】默认1
-    cache.memcached.read.thread.count 
+    cache.memcached.readThreadCount
 	#【选填】默认1000l
-    cache.memcached.check.session.timeout.interval  
+    cache.memcached.checkSessionTimeoutInterval
 
 ###5、使用ehcache缓存需要配置信息
 对于ehcache的配置除了上面配置外，由于ehcache自己有一套配置文件，所以也支持通过它自身的xml配置文件来配置
 ####通过properties来配置
     <!--lang-->
-    cache.ehcache.update.check 
-    cache.ehcache.default.transaction.timeout.in.seconds
-    cache.ehcache.dynamic.config
-	#默认值1024*1024*10l
-    cache.ehcache.max.bytes.local.heap 
-    cache.ehcache.max.bytes.local.off.heap
-    cache.ehcache.max.bytes.local.disk
-	#默认值0
-    cache.ehcache.cache.loader.timeout.millis 
-	#默认值10000
-    cache.ehcache.max.entries.local.heap 
-	#默认值10000000
-    cache.ehcache.max.elements.on.disk 
-	#默认值0
-    cache.ehcache.max.entries.in.cache
-	#默认值true
-    cache.ehcache.clear.on.flush
-	#默认值false
+    #默认值true
+    cache.ehcache.updateCheck
+    #默认值15
+    #默认值default
+    cache.ehcache.name
+    #默认值0
+    cache.ehcache.cacheLoaderTimeoutMillis
+    #默认值10000
+    cache.ehcache.maxEntriesLocalHeap
+    #默认值10000000
+    cache.ehcache.maxElementsOnDisk
+    #默认值0
+    cache.ehcache.maxEntriesInCache
+    #默认值true
+    cache.ehcache.clearOnFlush
+    #默认值false
     cache.ehcache.eternal
-	#默认值120
-    cache.ehcache.time.to.idle.seconds
-	#默认值120
-    cache.ehcache.time.to.live.seconds
-	#默认值null
-    cache.ehcache.overflow.to.disk
-	#默认值null
-    cache.ehcache.disk.persistent
-	#默认值30
-    cache.ehcache.disk.spool.buffer.size.m.b
-	#默认值1
-    cache.ehcache.disk.access.stripes
-	#默认值120
-    cache.ehcache.disk.expiry.thread.interval.seconds
-	#默认值false
+    #默认值120
+    cache.ehcache.timeToIdleSeconds
+    #默认值120
+    cache.ehcache.timeToLiveSeconds
+    #默认值null
+    cache.ehcache.overflowToDisk
+    #默认值null
+    cache.ehcache.diskPersistent
+    #默认值30
+    cache.ehcache.diskSpoolBufferSizeMB
+    #默认值1
+    cache.ehcache.diskAccessStripes
+    #默认值120
+    cache.ehcache.diskExpiryThreadIntervalSeconds
+    #默认值false
     cache.ehcache.logging
-	#默认值null
-    cache.ehcache.overflow.to.off.heap
-	#默认值null
-    cache.ehcache.transactional.mode
-	#默认值true
+    #默认值null
+    cache.ehcache.overflowToOffHeap
+    #默认值null
+    cache.ehcache.transactionalMode
+    #默认值true
     cache.ehcache.statistics
-	#默认值null
-    cache.ehcache.copy.on.read
-	#默认值null
-    cache.ehcache.copy.on.write
-	#默认值null
-    cache.ehcache.max.bytes.local.heap
-	#默认值null
-    cache.ehcache.max.bytes.local.off.heap
-	#默认值null
-    cache.ehcache.max.bytes.local.disk
+    #默认值null
+    cache.ehcache.copyOnRead
+    #默认值null
+    cache.ehcache.copyOnWrite
+    #默认值null
+    cache.ehcache.maxBytesLocalHeap
+    #默认值null
+    cache.ehcache.maxBytesLocalOffHeap
+    #默认值null
+    cache.ehcache.maxBytesLocalDisk
     
 ####通过ehcache自带的XML方式配置
     <!--lang-->

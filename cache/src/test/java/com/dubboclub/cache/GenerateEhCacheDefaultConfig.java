@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.utils.StringUtils;
 import com.dubboclub.cache.config.CacheConfig;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -17,15 +18,16 @@ public class GenerateEhCacheDefaultConfig {
     public static void main(String[] args) throws IllegalAccessException {
         CacheManager manager = CacheManager.create();
         Configuration configuration = manager.getConfiguration();
-      
-        Object object=configuration;
+        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+        Object object= poolConfig;
         Field[] fields = object.getClass().getDeclaredFields();
         String prefix="cache.ehcache.";
         for(Field field:fields){
            field.setAccessible(true);
             Method method = getSetMethod(object.getClass(),field);
             if(method!=null&& CacheConfig.checkIsBasicType(field.getType())){
-                System.out.println(prefix+StringUtils.camelToSplitName(field.getName(),".")+"#默认值"+field.get(object));
+                System.out.println("#默认值"+field.get(object));
+                System.out.println(prefix+field.getName());
             }
         }
     }

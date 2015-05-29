@@ -137,25 +137,30 @@ public class CacheConfig {
     }
 
     public static void appendProperties(Object object,Class<?> owner){
-        Field[] fields = object.getClass().getDeclaredFields();
         String prefix="cache."+getTagName(owner)+".";
-        for(Field field:fields){
-            Method setMethod = getSetMethod(object.getClass(),field);
-            if(setMethod!=null&&checkIsBasicType(field.getType())){
-                String property = StringUtils.camelToSplitName(field.getName(), ".");
-                String configValue=null;
-                if(CacheConfig.getProperties().containsKey(prefix+property)){
-                    try {
-                        configValue=CacheConfig.getProperty(prefix+property);
-                        setMethod.invoke(object,casePrimitiveType(field.getType(),configValue));
-                    } catch (IllegalAccessException e) {
-                        logger.debug("Failed to set value ["+configValue+"] property ["+field.getName()+"] ",e);
-                    } catch (InvocationTargetException e) {
-                        logger.debug("Failed to set value [" + configValue + "] property [" + field.getName() + "] ",e);
+        Class<?> superClass = object.getClass();
+        while(superClass!=Object.class){
+            Field[] fields = superClass.getDeclaredFields();
+            for(Field field:fields){
+                Method setMethod = getSetMethod(superClass,field);
+                if(setMethod!=null&&checkIsBasicType(field.getType())){
+                    String property = field.getName();
+                    String configValue=null;
+                    if(CacheConfig.getProperties().containsKey(prefix+property)){
+                        try {
+                            configValue=CacheConfig.getProperty(prefix+property);
+                            setMethod.invoke(object,casePrimitiveType(field.getType(),configValue));
+                        } catch (IllegalAccessException e) {
+                            logger.debug("Failed to set value ["+configValue+"] property ["+field.getName()+"] ",e);
+                        } catch (InvocationTargetException e) {
+                            logger.debug("Failed to set value [" + configValue + "] property [" + field.getName() + "] ",e);
+                        }
                     }
                 }
             }
+            superClass=superClass.getSuperclass();
         }
+
     }
 
     private static String getTagName(Class<?> cls) {
