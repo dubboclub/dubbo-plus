@@ -1,0 +1,1 @@
+circuitBreaker=com.pinganfu.mtp.biz.circuitbreaker.RemoteFacadeCircuitBreaker
