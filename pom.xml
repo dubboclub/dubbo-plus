@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <properties>
         <dubbo.version>2.5.3.2</dubbo.version>
+        <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     </properties>
     <dependencies>
         <dependency>
@@ -30,4 +31,18 @@
         <module>cache</module>
         <module>cricuitbreaker</module>
     </modules>
+    <reporting>
+        <plugins>
+            <plugin>
+
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <xmlOutput>true</xmlOutput>
+                    <xmlOutputDirectory>target/site</xmlOutputDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
