@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>dubbo-plus</artifactId>
-        <groupId>com.dubboclub</groupId>
+        <groupId>net.dubboclub</groupId>
         <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -13,12 +13,12 @@
     
     <dependencies>
         <dependency>
-            <groupId>com.dubboclub</groupId>
+            <groupId>net.dubboclub</groupId>
             <artifactId>cricuitbreaker</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dubboclub</groupId>
+            <groupId>net.dubboclub</groupId>
             <artifactId>cache</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
