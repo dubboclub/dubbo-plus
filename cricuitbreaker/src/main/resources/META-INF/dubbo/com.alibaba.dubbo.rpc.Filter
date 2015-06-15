@@ -1,1 +1,1 @@
-circuitBreaker=com.pinganfu.mtp.biz.circuitbreaker.RemoteFacadeCircuitBreaker
+circuitBreaker=com.dubboclub.cricuitbreaker.filter.RemoteFacadeCircuitBreaker

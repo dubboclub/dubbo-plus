@@ -5,9 +5,12 @@
     <parent>
         <artifactId>dubbo-plus</artifactId>
         <groupId>com.dubboclub</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cricuitbreaker</artifactId>
+        
+    
+
 </project>

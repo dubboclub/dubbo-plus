@@ -19,32 +19,25 @@ Dubbo支持服务降级，并且支持当服务出现异常的时候进行服务
 ##降级相关配置
 降级配置分配为应用级别，接口级别，方法级别
 ###一、应用级别
-dubbo.reference.default-break-time-interval：该参数是配置一个方法在多少时间内连续出现指定数量的异常则判断为提供方宕机
-
-dubbo.reference.default-break-limit：该参数是配置一个方法在指定时间内出现多少个异常则判断为服务提供方宕机
-
-dubbo.reference.default-retry-frequency：该参数配置重试频率，比如配置100，则表示没出现一百次异常则尝试一下远程服务是否可用
-
+    <!--lang:java-->
+    dubbo.reference.default.break.limit：该参数是配置一个方法在指定时间内出现多少个异常则判断为服务提供方宕机
+    dubbo.reference.default.retry.frequency：该参数配置重试频率，比如配置100，则表示没出现一百次异常则尝试一下远程服务是否可用
+    dubbo.reference.circuit.break:服务降级功能开关，默认是false，表示关闭状态，可以配置为true
 ###二、接口级别
-> dubbo.reference.fullinterfacename.break.time.interval：同上面的dubbo.reference.default-break-time-interval，只是指定某个接口
->
-> dubbo.reference.fullinterfacename.break.limit：同上面dubbo.reference.default-break-limit，指定某个接口
->
-> dubbo.reference.fullinterfacename.retry.frequency:同上面
-> dubbo.reference.default-retry-frequency，指定某个接口
-
+    <!--lang:java-->
+    dubbo.reference.${fullinterfacename}.break.limit：同上面dubbo.reference.default-break-limit，指定某个接口
+    dubbo.reference.${fullinterfacename}.retry.frequency:同上面
+    dubbo.reference.${fullinterfacename}.circuit.break:服务降级功能开关，默认是false，表示关闭状态，可以配置为true
 ###三、方法级别
-
-dubbo.reference.**fullinterfacename**.***methodName***.break.time.interval：同上面的dubbo.reference.default-break-time-interval，指定某个接口的某个方法
-
-dubbo.reference.**fullinterfacename**.***methodName***.break.limit：同上面dubbo.reference.default-break-limit，指定某个接口的某个方法
-
-dubbo.reference.**fullinterfacename**.***methodName***.retry.frequency:同上面
-dubbo.reference.default-retry-frequency，指定某个接口的某个方法
-
+    <!--lang:java-->
+    dubbo.reference.${fullinterfacename}.${methodName}.break.limit：同上面dubbo.reference.default-break-limit，指定某个接口的某个方法
+    dubbo.reference.${fullinterfacename}.${methodName}.retry.frequency:同上面dubbo.reference.default-retry-frequency，指定某个接口的某个方法
+    dubbo.reference.${fullinterfacename}.${methodName}.circuit.break:服务降级功能开关，默认是false，表示关闭状态，可以配置为true
+    
 上面这些参数均是配置在dubbo.properties中
 
 dubbo.properties具体在哪里，默认是在classpath根目录，也可以通过-Ddubbo.properties.file来指定该文件路径。
+
 
 
 ##降级服务实现

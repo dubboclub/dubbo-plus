@@ -1,7 +1,6 @@
 package com.dubboclub.cricuitbreaker.filter;
 
 import com.alibaba.dubbo.common.Constants;
-import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.common.logger.Logger;
@@ -9,7 +8,6 @@ import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.rpc.*;
 import com.dubboclub.cricuitbreaker.exception.CricuitBreakerException;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -22,18 +20,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @Activate(group = {Constants.CONSUMER})
 public class RemoteFacadeCircuitBreaker implements Filter {
     
-    private static final String DEFAULT_CIRCUIT_BREAKER_ERROR_CODE="";
-    
-    //默认情况下1分钟内出现10个异常，同时默认情况下当满足1分钟内10个异常，然后每发生10次错误就会进行一次重试，检查服务是否恢复
-    private static final String DEFAULT_BREAK_LIMIT="10";
-
-    private static final String DEFAULT_RETRY_FREQUENCY="10";
-
-    private static final String DEFAULT_TIME_INTERVAL="60000";
-
-    private static final String DUBBO_REFERENCE_PREFIX="dubbo.reference.";
-    
-    private static final String DUBBO_REFERENCE_CIRCUIT_BREAKER_SWITCH=DUBBO_REFERENCE_PREFIX+"circuit.breaker";
 
     private static final Logger logger = LoggerFactory.getLogger(RemoteFacadeCircuitBreaker.class);
 
@@ -64,26 +50,33 @@ public class RemoteFacadeCircuitBreaker implements Filter {
     }
 
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        if(getFunctionSwitch()){
+        if(Config.checkFunctionSwitch(invoker, invocation)){
             return wrapBreakerInvoke(invoker,invocation);
         }
-        return invoker.invoke(invocation);
+        Result result =  invoker.invoke(invocation);
+        toBeNormal(invoker,invocation);
+        return result;
     }
-    
+
+
+
     
     private Result wrapBreakerInvoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        URL url = invoker.getUrl();
+        //首先检查是否需要进入服务降级流程
         if(checkNeedCircuitBreak(invoker, invocation)){
             if(logger.isDebugEnabled()){
                 logger.debug("activate the circuit break for url ["+invoker.getUrl()+"],invoke method ["+invocation.getMethodName()+"]");
             }
+            //进入服务降级
             return doCircuitBreak(invoker, invocation);
         }
         try{
             Result result = invoker.invoke(invocation);
+            //将该服务从服务降级中恢复出来
             toBeNormal(invoker, invocation);
             return result;
         }catch (RpcException e){
+            //如果是业务异常，则直接返回异常
             if(e.isBiz()){
                 throw e;
             }
@@ -100,7 +93,7 @@ public class RemoteFacadeCircuitBreaker implements Filter {
     private void toBeNormal(Invoker<?> invoker, Invocation invocation){
         String interfaceName = invoker.getUrl().getParameter(Constants.INTERFACE_KEY);
         String method = invocation.getMethodName();
-        StringBuffer methodConfig = new StringBuffer(DUBBO_REFERENCE_PREFIX);
+        StringBuffer methodConfig = new StringBuffer(Config.DUBBO_REFERENCE_PREFIX);
         methodConfig.append(interfaceName).append(".").append(method);
         String methodKey = methodConfig.toString();
         //从其中删除对应的异常计数器
@@ -111,27 +104,30 @@ public class RemoteFacadeCircuitBreaker implements Filter {
         }
     }
 
+
+    /**
+     * 这里会判断当前调用服务的状态，分析判断是否需要进入降级状态
+     * 如果服务在指定的时间区间内累积的错误，达到了配置的次数，则进入服务降级
+     * 如果满足上面条件，并且满足重试机制，则也不会进入降级流程，而是触发远程服务调用
+     * @param invoker
+     * @param invocation
+     * @return
+     */
     private boolean checkNeedCircuitBreak(Invoker<?> invoker, Invocation invocation) {
         String interfaceName = invoker.getUrl().getParameter(Constants.INTERFACE_KEY);
         String method = invocation.getMethodName();
-        StringBuffer interfaceConfig = new StringBuffer(DUBBO_REFERENCE_PREFIX);
-        interfaceConfig.append(interfaceName);
-        StringBuffer methodConfig = new StringBuffer(interfaceConfig.toString());
-        methodConfig.append(".").append(method);
-        String methodKey = methodConfig.toString();
-        int limit = getBreakLimit(interfaceConfig,methodConfig);
+        String methodKey = Config.getMethodPropertyName(invoker, invocation).toString();
+        int limit = Config.getBreakLimit(invoker, invocation);
         BreakCounter breakCounter = breakCounterMap.get(methodKey);
         if(breakCounter!=null&&breakCounter.enable()){
+            long currentExceptionCount = breakCounter.getCurrentExceptionCount();
             long currentBreakCount = breakCounter.getCurrentBreakCount();
-            int retries=0;
-            retries=invoker.getUrl().getParameter(Constants.RETRIES_KEY, Constants.DEFAULT_RETRIES);
-            retries++;
-            limit=limit*retries;
             if(logger.isDebugEnabled()){
                 logger.debug("check invoke "+interfaceName+"."+method+"() circuit break,current break count ["+currentBreakCount+"],the limit is ["+limit+"]");
             }
-            if(limit<=currentBreakCount){
-                if(needRetry(invoker, invocation, currentBreakCount)){
+            if(limit<=currentExceptionCount){
+                if(currentBreakCount>0&&needRetry(invoker, invocation, currentBreakCount)){
+                    breakCounter.incrementBreakCount();
                     return false;
                 }
                 return true;
@@ -143,11 +139,7 @@ public class RemoteFacadeCircuitBreaker implements Filter {
     private boolean needRetry(Invoker<?> invoker, Invocation invocation, long currentBreakCount){
         String interfaceName = invoker.getUrl().getParameter(Constants.INTERFACE_KEY);
         String method = invocation.getMethodName();
-        StringBuffer interfaceConfig = new StringBuffer(DUBBO_REFERENCE_PREFIX);
-        interfaceConfig.append(interfaceName);
-        StringBuffer methodConfig = new StringBuffer(interfaceConfig.toString());
-        methodConfig.append(".").append(method);
-        int frequency = getRetryFrequency(interfaceConfig, methodConfig);
+        int frequency = Config.getRetryFrequency(invoker, invocation);
         if(logger.isDebugEnabled()){
             logger.debug("check invoke "+interfaceName+"."+method+"() need retry,current break count ["+currentBreakCount+"],retry frequency ["+frequency+"]");
         }
@@ -197,7 +189,7 @@ public class RemoteFacadeCircuitBreaker implements Filter {
         if(logger.isDebugEnabled()){
             logger.debug("handle circuit break by exception");
         }
-        CricuitBreakerException baseBusinessException = new CricuitBreakerException(DEFAULT_CIRCUIT_BREAKER_ERROR_CODE,"哎哟，系统异常，请稍后再试");
+        CricuitBreakerException baseBusinessException = new CricuitBreakerException(Config.DEFAULT_CIRCUIT_BREAKER_ERROR_CODE,"哎哟，系统异常，请稍后再试");
         RpcException rpcException = new RpcException(RpcException.BIZ_EXCEPTION,baseBusinessException);
         throw rpcException;
     }
@@ -205,7 +197,7 @@ public class RemoteFacadeCircuitBreaker implements Filter {
     private void incrementBreakCount(Invoker<?> invoker,Invocation invocation){
         String interfaceName = invoker.getUrl().getParameter(Constants.INTERFACE_KEY);
         String method = invocation.getMethodName();
-        StringBuffer interfaceConfig = new StringBuffer(DUBBO_REFERENCE_PREFIX);
+        StringBuffer interfaceConfig = new StringBuffer(Config.DUBBO_REFERENCE_PREFIX);
         interfaceConfig.append(interfaceName);
         StringBuffer methodConfig = new StringBuffer(interfaceConfig.toString());
         methodConfig.append(".").append(method);
@@ -217,12 +209,16 @@ public class RemoteFacadeCircuitBreaker implements Filter {
     private void caughtException(Invoker<?> invoker,Invocation invocation,Exception e){
         String interfaceName = invoker.getUrl().getParameter(Constants.INTERFACE_KEY);
         String method = invocation.getMethodName();
-        StringBuffer interfaceConfig = new StringBuffer(DUBBO_REFERENCE_PREFIX);
+        StringBuffer interfaceConfig = new StringBuffer(Config.DUBBO_REFERENCE_PREFIX);
         interfaceConfig.append(interfaceName);
         StringBuffer methodConfig = new StringBuffer(interfaceConfig.toString());
         methodConfig.append(".").append(method);
         String methodKey = methodConfig.toString();
-        ExceptionMarker breakMarker = new ExceptionMarker(System.currentTimeMillis(), getBreakTimeInterval(interfaceConfig, methodConfig),e);
+        int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(),Constants.TIMEOUT_KEY,Constants.DEFAULT_TIMEOUT);
+        int limit = Config.getBreakLimit(invoker,invocation);
+        //一个异常的有效期，是通过连续出现异常数量乘以每个调用的超时时间，比如你配置连续出现10次异常之后进行服务降级，并且每次服务调用的超时事件是2000ms的话，同时
+        //每个服务重试次数是为2次，那么就是在(2+1)*2000*10
+        ExceptionMarker breakMarker = new ExceptionMarker(System.currentTimeMillis(), limit*timeout,e);
         if(!breakCounterMap.containsKey(methodKey)){
             BreakCounter oldValue = breakCounterMap.putIfAbsent(methodKey, new BreakCounter(methodKey));
             //返回的oldValue为空，表示之前没有创建了赌赢的异常计数器,则需要对它分配一个loop
@@ -235,64 +231,5 @@ public class RemoteFacadeCircuitBreaker implements Filter {
         if(logger.isDebugEnabled()){
             logger.debug("caught exception for rpc invoke "+interfaceName+"."+method+"()，current break count ["+counter.getCurrentExceptionCount()+"]");
         }
-    }
-
-
-    /**
-     * 获取某个方法或者某个接口的判定为出现异常的次数
-     * 提供在配置中心和dubbo.properties两种途径配置
-     * 如果两个地方均有配置，配置中心的为准
-     * @param interfaceConfig
-     * @param methodConfig
-     * @return
-     */
-    private int getBreakLimit(StringBuffer interfaceConfig,StringBuffer methodConfig){
-        methodConfig.append(".break.limit");
-        interfaceConfig.append(".break.limit");
-        String breakLimitConf = ConfigUtils.getProperty(methodConfig.toString(), ConfigUtils.getProperty(interfaceConfig.toString(), ConfigUtils.getProperty("dubbo.reference.default-break-limit", DEFAULT_BREAK_LIMIT)));
-        int breakLimit =  Integer.parseInt(breakLimitConf);
-        return breakLimit;
-    }
-
-
-    /**
-     * 获取某个方法或者接口多少时间内出现指定次数异常判定为服务器宕机
-     * 提供在配置中心和dubbo.properties两种途径配置
-     * 如果两个地方均有配置，配置中心的为准
-     * @param interfaceConfig
-     * @param methodConfig
-     * @return
-     */
-    private long getBreakTimeInterval(StringBuffer interfaceConfig, StringBuffer methodConfig){
-        methodConfig.append(".break.time.interval");
-        interfaceConfig.append(".break.time.interval");
-        String timeIntervalConf = ConfigUtils.getProperty(methodConfig.toString(), ConfigUtils.getProperty(interfaceConfig.toString(), ConfigUtils.getProperty("dubbo.reference.default-break-time-interval", DEFAULT_TIME_INTERVAL)));
-        long timeInterval =  Long.parseLong(timeIntervalConf);
-        return timeInterval;
-    }
-
-    /**
-     * 获取某个方法或者接口重试频次，及每出现多少次异常，就重试一次远程接口
-     * 提供在配置中心和dubbo.properties两种途径配置
-     * 如果两个地方均有配置，配置中心的为准
-     * @param interfaceConfig
-     * @param methodConfig
-     * @return
-     */
-    private int getRetryFrequency(StringBuffer interfaceConfig, StringBuffer methodConfig){
-        methodConfig.append(".retry.frequency");
-        interfaceConfig.append(".retry.frequency");
-        String retryFrequencyConf = ConfigUtils.getProperty(methodConfig.toString(), ConfigUtils.getProperty(interfaceConfig.toString(), ConfigUtils.getProperty("dubbo.reference.default_retry_frequency", DEFAULT_RETRY_FREQUENCY)));
-        int retryFrequency = Integer.parseInt(retryFrequencyConf);
-        return retryFrequency;
-    }
-
-    /**
-     * 获取这个功能是否开启的开关
-     * @return
-     */
-    private boolean getFunctionSwitch(){
-        String configSwitch = ConfigUtils.getProperty(DUBBO_REFERENCE_CIRCUIT_BREAKER_SWITCH,"true");
-        return Boolean.parseBoolean(configSwitch);
     }
 }
