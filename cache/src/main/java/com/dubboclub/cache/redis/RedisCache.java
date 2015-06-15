@@ -19,8 +19,6 @@ import java.io.IOException;
  */
 public class RedisCache extends RemoteCache {
     
-    private RemoteClient remoteClient;
-
     @Override
     protected String getTagName() {
         return "redis";

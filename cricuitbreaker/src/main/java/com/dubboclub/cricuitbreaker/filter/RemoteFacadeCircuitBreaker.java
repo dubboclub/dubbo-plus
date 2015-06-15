@@ -162,7 +162,7 @@ public class RemoteFacadeCircuitBreaker implements Filter {
                 logger.debug("check has class "+circuitBreaker+" to handle circuit break");
             }
             Invoker<?> breakerInvoker =null;
-            if(CIRCUIT_BREAKER_INVOKER_CACHE.contains(circuitBreaker)){
+            if(CIRCUIT_BREAKER_INVOKER_CACHE.containsKey(circuitBreaker)){
                 breakerInvoker = CIRCUIT_BREAKER_INVOKER_CACHE.get(circuitBreaker);
             }else{
                 Class<T> breakerType = (Class<T>) Class.forName(circuitBreaker);
