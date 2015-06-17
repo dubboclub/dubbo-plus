@@ -10,16 +10,17 @@
 
     <groupId>net.dubboclub</groupId>
     <artifactId>dubbo-plus</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <properties>
         <dubbo.version>2.5.3</dubbo.version>
         <lang.version>2.6</lang.version>
         <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
-        
-        <java_source_version>1.5</java_source_version>
-        <java_target_version>1.5</java_target_version>
+        <java_source_version>1.6</java_source_version>
+        <java_target_version>1.6</java_target_version>
         <file_encoding>UTF-8</file_encoding>
         
         
@@ -82,8 +83,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven_compiler_plugin_version}</version>
+                <configuration>
+                    <source>${java_source_version}</source>
+                    <target>${java_target_version}</target>
+                    <encoding>${file_encoding}</encoding>
+                </configuration>
+            </plugin>
         </plugins>
-        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -140,7 +150,7 @@
         <developerConnection>scm:git:https://github.com/dubboclub/dubbo-plus.git</developerConnection>
         <url>https://github.com/dubboclub/dubbo-plus.git</url>
     </scm>
-
+    
     <profiles>
         <profile>
             <id>release</id>
