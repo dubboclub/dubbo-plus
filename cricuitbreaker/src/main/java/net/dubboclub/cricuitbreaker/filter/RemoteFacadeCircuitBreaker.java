@@ -7,7 +7,7 @@ import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.rpc.*;
-import net.dubboclub.cricuitbreaker.exception.CricuitBreakerException;
+import net.dubboclub.cricuitbreaker.exception.CircuitBreakerException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -189,7 +189,7 @@ public class RemoteFacadeCircuitBreaker implements Filter {
         if(logger.isDebugEnabled()){
             logger.debug("handle circuit break by exception");
         }
-        CricuitBreakerException baseBusinessException = new CricuitBreakerException(Config.DEFAULT_CIRCUIT_BREAKER_ERROR_CODE,"哎哟，系统异常，请稍后再试");
+        CircuitBreakerException baseBusinessException = new CircuitBreakerException(Config.DEFAULT_CIRCUIT_BREAKER_ERROR_CODE,"哎哟，系统异常，请稍后再试");
         RpcException rpcException = new RpcException(RpcException.BIZ_EXCEPTION,baseBusinessException);
         throw rpcException;
     }
