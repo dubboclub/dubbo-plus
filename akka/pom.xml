@@ -13,5 +13,6 @@
 
     <modules>
         <module>akka-remoting</module>
+        <module>akka-protocol</module>
     </modules>
 </project>
