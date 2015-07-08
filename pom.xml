@@ -54,6 +54,9 @@
         <module>cache</module>
         <module>cricuitbreaker</module>
         <module>dubbo-plus-all</module>
+        <module>akka-plugin</module>
+        <module>akka-remoting</module>
+        <module>akka</module>
     </modules>
     <build>
         <plugins>
