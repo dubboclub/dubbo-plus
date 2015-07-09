@@ -1,4 +1,4 @@
-package net.dubboclub.akka.core.actor;
+package net.dubboclub.akka.remoting.actor;
 
 import akka.actor.UntypedActor;
 import com.alibaba.dubbo.rpc.Invocation;

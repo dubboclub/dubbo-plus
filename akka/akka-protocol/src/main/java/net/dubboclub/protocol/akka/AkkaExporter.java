@@ -1,26 +1,24 @@
 package net.dubboclub.protocol.akka;
 
-import com.alibaba.dubbo.rpc.Exporter;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.protocol.AbstractExporter;
-import com.alibaba.dubbo.rpc.support.ProtocolUtils;
-import net.dubboclub.akka.core.AkkaContextHandler;
+import net.dubboclub.akka.remoting.actor.BasicActor;
 
 /**
  * Created by bieber on 2015/7/8.
  */
 public class AkkaExporter<T> extends AbstractExporter<T> {
 
+    private BasicActor actor;
 
-    public AkkaExporter(Invoker<T> invoker) {
+    public AkkaExporter(Invoker<T> invoker,BasicActor actor) {
         super(invoker);
-        AkkaContextHandler.getActorSystemBootstrap().registerService(invoker);
+        this.actor = actor;
     }
 
     @Override
     public void unexport() {
         super.unexport();
-        String serviceKey = ProtocolUtils.serviceKey(getInvoker().getUrl());
-        AkkaContextHandler.getActorSystemBootstrap().unRegisterActor(serviceKey);
+        this.actor.destroy();
     }
 }

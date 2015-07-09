@@ -1,4 +1,4 @@
-package net.dubboclub.akka.core;
+package net.dubboclub.akka.remoting.message;
 
 /**
  * Created by bieber on 2015/7/9.
@@ -8,6 +8,8 @@ public class ActorOperate {
     private String actorName;
 
     private Operate operation;
+    
+    private Object message;
 
     public ActorOperate(String actorName, Operate operation) {
         this.actorName = actorName;
@@ -23,7 +25,7 @@ public class ActorOperate {
     }
 
     public enum Operate {
-        DESTROY,STATISTICS,STARTED
+        DESTROY,STATISTICS,STARTED,REQUEST
     }
 
 }

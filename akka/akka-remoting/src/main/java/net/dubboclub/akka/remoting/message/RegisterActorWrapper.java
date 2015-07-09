@@ -1,4 +1,4 @@
-package net.dubboclub.akka.core;
+package net.dubboclub.akka.remoting.message;
 
 import akka.actor.UntypedActor;
 

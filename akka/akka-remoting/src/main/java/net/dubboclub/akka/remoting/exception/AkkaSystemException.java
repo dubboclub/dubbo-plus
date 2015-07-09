@@ -1,4 +1,4 @@
-package net.dubboclub.akka.core.exception;
+package net.dubboclub.akka.remoting.exception;
 
 /**
  * Created by bieber on 2015/7/8.
