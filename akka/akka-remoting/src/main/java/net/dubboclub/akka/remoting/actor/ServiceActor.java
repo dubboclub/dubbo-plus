@@ -22,7 +22,7 @@ public class ServiceActor implements BasicActor{
     }
     @Override
     public void destroy() {
-        AkkaSystemContext.getActorSystemBootstrap().unRegisterActor(ActorSystemBootstrap.SERVICE_SLIDE+serviceKey);
+        AkkaSystemContext.getActorSystemBootstrap(false).unRegisterActor(serviceKey);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ServiceActor implements BasicActor{
 
     @Override
     public ResponseFuture tell(Object message) {
-        return null;
+        throw new UnsupportedOperationException("Service Actor unsupported tell operate");
     }
 
 }

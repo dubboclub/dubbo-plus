@@ -34,25 +34,5 @@ public class ServiceProvider extends UntypedActor {
 
     }
 
-    class RequestWrapper implements Serializable{
-
-        private Invoker<?> invoker;
-
-        private Invocation invocation;
-
-        public RequestWrapper(Invoker<?> invoker, Invocation invocation) {
-            this.invoker = invoker;
-            this.invocation = invocation;
-        }
-
-        public Invoker<?> getInvoker() {
-            return invoker;
-        }
-
-        public Invocation getInvocation() {
-            return invocation;
-        }
-    }
-
 
 }

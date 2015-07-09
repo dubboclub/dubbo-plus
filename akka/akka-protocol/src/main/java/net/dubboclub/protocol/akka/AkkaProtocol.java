@@ -50,10 +50,7 @@ public class AkkaProtocol extends AbstractProtocol {
 
     @Override
     public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
-        return null;
+        return new AkkaInvoker<T>(getExchanger().connect(type,url),url,type);
     }
-
-
-
 
 }

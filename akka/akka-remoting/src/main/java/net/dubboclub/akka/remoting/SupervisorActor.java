@@ -33,7 +33,7 @@ public class SupervisorActor extends UntypedActor {
 
     @Override
     public void onReceive(Object o) throws Exception {
-        if(o instanceof RegisterActorWrapper){
+        if(o instanceof RegisterActorWrapper){//将某个制定的子Actor注册到当前Actor中
             RegisterActorWrapper wrapper = (RegisterActorWrapper) o;
             ActorRef ref = getContext().watch(getContext().actorOf(Props.create(wrapper.getActorClass(), wrapper.getConstructorArgs()), wrapper.getActorName()));
             AtomicLong atomicLong = actorStatistics.get(wrapper.getActorClass());
@@ -43,7 +43,7 @@ public class SupervisorActor extends UntypedActor {
                 actorStatistics.put(wrapper.getActorClass(),atomicLong);
             }
             atomicLong.getAndIncrement();
-        }else if(o instanceof Terminated){
+        }else if(o instanceof Terminated){//某个监控的子Actor死亡信息
             Terminated terminated = (Terminated) o;
             ActorRef actorRef = terminated.getActor();
             Class<? extends  UntypedActor> actorClass = actorMap.get(actorRef.path().toString());
@@ -54,15 +54,16 @@ public class SupervisorActor extends UntypedActor {
                 }
             }
         }else if (o instanceof ActorOperate.Operate){
+            //对当前的Actor进行相关操作
             ActorOperate.Operate operate = (ActorOperate.Operate) o;
             switch (operate){
-                case STATISTICS:{
+                case STATISTICS:{//统计当前Actor的子Actor的状态
                     for(Map.Entry<Class<? extends UntypedActor>,AtomicLong> entry:actorStatistics.entrySet()){
                         loggingAdapter.debug("{} actor type current had {} actor instants",entry.getKey(),entry.getValue().get());
                     }
                     break;
                 }
-                case STARTED:{
+                case STARTED:{//启动初始化当前Actor
                     getContext().system().scheduler().schedule(Duration.create(1, TimeUnit.SECONDS), Duration.create(1, TimeUnit.MINUTES),getSelf(), ActorOperate.Operate.STATISTICS,getContext().dispatcher(),null);
                     break;
                 }
@@ -76,10 +77,16 @@ public class SupervisorActor extends UntypedActor {
             if(actorIdentity.getRef()==null){
                 loggingAdapter.debug("not found actor for  {} operate",actorIdentity.correlationId());
             }else{
-                ActorOperate.Operate operate = (ActorOperate.Operate) actorIdentity.correlationId();
-                switch (operate){
+                ActorOperate operate = (ActorOperate) actorIdentity.correlationId();
+                switch (operate.getOperate()){
                     case DESTROY:{
+                        //想某个子Actor发送销毁事件
                         actorIdentity.getRef().tell(PoisonPill.getInstance(),getSelf());
+                        break;
+                    }
+                    case REQUEST:{
+                        //对某个actor进行请求
+                        actorIdentity.getRef().tell(operate.getAttachment(),getSelf());
                         break;
                     }
                     default:{
@@ -90,8 +97,9 @@ public class SupervisorActor extends UntypedActor {
                 }
             }
         }else if(o instanceof ActorOperate){
+            //对子Actor的操作统一入口
             ActorOperate operate = (ActorOperate) o;
-            getContext().actorSelection("./"+operate.getActorName()).tell(new Identify(operate.getOperation()),getSelf());
+            getContext().actorSelection("./"+operate.getActorName()).tell(new Identify(operate),getSelf());
         }else{
             unhandled(o);
         }

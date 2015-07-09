@@ -15,9 +15,15 @@ public class ConsumeActor implements BasicActor {
     private String serviceKey;
 
     private ActorRef parent;
+
+    public ConsumeActor(String serviceKey, ActorRef parent) {
+        this.serviceKey = serviceKey;
+        this.parent = parent;
+    }
+
     @Override
     public void destroy() {
-        
+        AkkaSystemContext.getActorSystemBootstrap(true).unRegisterActor(serviceKey);
     }
 
     @Override
@@ -33,8 +39,8 @@ public class ConsumeActor implements BasicActor {
     @Override
     public ResponseFuture tell(Object message) {
         if(message instanceof Invocation){
-            Request request = new Request(message, ActorSystemBootstrap.CONSUME_SLIDE+serviceKey);
-            return AkkaSystemContext.getActorSystemBootstrap().doRequest(request);
+            Request request = new Request(message, serviceKey);
+            return AkkaSystemContext.getActorSystemBootstrap(true).doRequest(request);
         }
         return null;
     }

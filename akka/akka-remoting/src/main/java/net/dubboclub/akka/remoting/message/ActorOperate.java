@@ -1,5 +1,7 @@
 package net.dubboclub.akka.remoting.message;
 
+import java.io.Serializable;
+
 /**
  * Created by bieber on 2015/7/9.
  */
@@ -7,21 +9,29 @@ public class ActorOperate {
 
     private String actorName;
 
-    private Operate operation;
+    private Operate operate;
     
-    private Object message;
+    private Serializable attachment;
 
-    public ActorOperate(String actorName, Operate operation) {
+    public ActorOperate(String actorName, Operate operate) {
         this.actorName = actorName;
-        this.operation = operation;
+        this.operate = operate;
+    }
+
+    public void attachment(Serializable attachment){
+        this.attachment = attachment;
+    }
+
+    public Serializable getAttachment() {
+        return attachment;
     }
 
     public String getActorName() {
         return actorName;
     }
 
-    public Operate getOperation() {
-        return operation;
+    public Operate getOperate() {
+        return operate;
     }
 
     public enum Operate {

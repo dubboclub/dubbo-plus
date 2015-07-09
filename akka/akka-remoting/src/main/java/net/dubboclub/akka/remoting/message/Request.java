@@ -13,6 +13,8 @@ public class Request implements Serializable{
     private Object mData;
     
     private String actorName;
+
+    private boolean broken=false;
     
     private static final AtomicLong REQUEST_SEQUENCE= new AtomicLong(0);
 
@@ -20,6 +22,22 @@ public class Request implements Serializable{
         this.requestId = REQUEST_SEQUENCE.getAndIncrement();
         this.mData = mData;
         this.actorName = actorName;
+    }
+
+    public Request(long requestId){
+        this.requestId = requestId;
+    }
+
+    public void setBroken(boolean broken) {
+        this.broken = broken;
+    }
+
+    public void setData(Object mData) {
+        this.mData = mData;
+    }
+
+    public boolean isBroken() {
+        return broken;
     }
 
     public long getRequestId() {

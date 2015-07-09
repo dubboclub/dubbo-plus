@@ -16,11 +16,6 @@
             <artifactId>akka-remoting</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>net.dubboclub</groupId>
-            <artifactId>akka-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

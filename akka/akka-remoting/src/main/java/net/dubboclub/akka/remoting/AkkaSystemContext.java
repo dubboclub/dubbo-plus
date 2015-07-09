@@ -9,22 +9,45 @@ import net.dubboclub.akka.remoting.exception.AkkaSystemException;
  */
 public class AkkaSystemContext {
 
-    private volatile static ActorSystemBootstrap actorSystemBootstrap;
+    public  static final String SERVICE_SLIDE="service";
+
+    public static final String CONSUME_SLIDE="consume";
+
+    private volatile static ActorSystemBootstrap clientActorSystemBootstrap;
+
+    private volatile static ActorSystemBootstrap serverActorSystemBootstrap;
     
-    public static synchronized ActorSystemBootstrap initActorSystem(URL url){
-        if(actorSystemBootstrap==null){
-            String key = url.getParameter(Constants.APPLICATION_KEY);
-            actorSystemBootstrap = new ActorSystemBootstrap(key);
-            actorSystemBootstrap.start(url);
+    public static synchronized ActorSystemBootstrap initActorSystem(URL url,boolean isClient){
+        if(isClient){
+            if(clientActorSystemBootstrap==null){
+                String key = url.getParameter(Constants.APPLICATION_KEY);
+                clientActorSystemBootstrap = new ActorSystemBootstrap(CONSUME_SLIDE+"-"+key);
+                clientActorSystemBootstrap.start(url);
+            }
+            return clientActorSystemBootstrap;
+        }else{
+            if(serverActorSystemBootstrap==null){
+                String key = url.getParameter(Constants.APPLICATION_KEY);
+                serverActorSystemBootstrap = new ActorSystemBootstrap(SERVICE_SLIDE+"-"+key);
+                serverActorSystemBootstrap.start(url);
+            }
+            return serverActorSystemBootstrap;
         }
-        return actorSystemBootstrap;
     }
     
-    public static ActorSystemBootstrap getActorSystemBootstrap(){
-        return actorSystemBootstrap;
+    public static ActorSystemBootstrap getActorSystemBootstrap(boolean isClient){
+        if(isClient){
+            return clientActorSystemBootstrap;
+        }else{
+            return serverActorSystemBootstrap;
+        }
     }
 
-    public static void clean(){
-         actorSystemBootstrap = null;
+    public static void clean(boolean isClient){
+        if(isClient){
+             clientActorSystemBootstrap = null;
+        }else{
+             serverActorSystemBootstrap = null;
+        }
     }
 }
