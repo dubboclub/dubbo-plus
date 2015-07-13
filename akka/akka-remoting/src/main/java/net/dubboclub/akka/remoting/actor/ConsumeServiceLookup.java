@@ -18,9 +18,7 @@ import java.io.IOException;
 /**
  * Created by bieber on 2015/7/8.
  */
-public class ConsumeServiceLookup extends UntypedActor {
-
-    private static final int MAX_WORKER_SIZE = 100;
+public class ConsumeServiceLookup extends RouterActor {
 
     private volatile int currentWorkerSize = 0;
 
@@ -28,27 +26,10 @@ public class ConsumeServiceLookup extends UntypedActor {
 
     private URL url;
 
-    private Router router;
 
-    public ConsumeServiceLookup(){
-        String loadBalance = url.getParameter(Constants.LOADBALANCE_KEY,Constants.DEFAULT_LOADBALANCE);
-        RoutingLogic routingLogic = null;
-        if("random".equals(loadBalance)){
-            routingLogic = new RandomRoutingLogic();
-        }else if("roundrobin".equals(loadBalance)){
-            routingLogic = new RoundRobinRoutingLogic();
-        }else if("consistenthash".equals(loadBalance)){
-            routingLogic = new ConsistentHashingRoutingLogic(getContext().system());
-        }else if("leastactive".equals(loadBalance)){
-            routingLogic = new SmallestMailboxRoutingLogic();
-        }else{
-            routingLogic = new RandomRoutingLogic();
-        }
-        router = new Router(routingLogic);
-
-    }
 
     public ConsumeServiceLookup(Class<?> type, URL url) {
+        super(url);
         this.type = type;
         this.url = url;
     }
@@ -56,24 +37,30 @@ public class ConsumeServiceLookup extends UntypedActor {
     @Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof Request){
-            if(currentWorkerSize>=MAX_WORKER_SIZE){
+          /*  if(currentWorkerSize>=MAX_WORKER_SIZE){
                 router.route(o,getSender());
-            }else{
-                ActorRef worker = getContext().actorOf(Props.create(new Creator<Actor>() {
-                    @Override
-                    public Actor create() throws Exception {
-                        return new Worker(url);
-                    }
-                }));
+            }else{*/
+                ActorRef worker = getContext().actorOf(Props.create(new WorkerCreator(url)));
                 router.addRoutee(new ActorRefRoutee(worker));
                 currentWorkerSize++;
-            }
+                worker.tell(o,getSender());
+            //}
         }else{
             unhandled(o);
         }
     }
 
-    class Worker extends UntypedActor{
+     static class WorkerCreator implements Creator<Worker>{
+         private URL url;
+         public WorkerCreator(URL url){
+            this.url = url;
+         }
+        @Override
+        public Worker create() throws Exception {
+            return new Worker(url);
+        }
+    }
+    static class Worker extends UntypedActor{
 
         private URL url;
 
@@ -97,7 +84,7 @@ public class ConsumeServiceLookup extends UntypedActor {
                     AkkaFuture.receive(response);
                 }else{
                     try{
-                        RequestPackage requestPackage = new RequestPackage(AkkaCodec.encode(url,request).array());
+                        RequestPackage requestPackage = new RequestPackage(request.getRequestId(),AkkaCodec.encode(url,request).array());
                         identity.getRef().tell(requestPackage,getSelf());
                     }catch (IOException e){
                         Response response = new Response(request.getRequestId());

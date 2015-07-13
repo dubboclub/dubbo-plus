@@ -23,8 +23,6 @@ public class SupervisorActor extends UntypedActor {
 
     public static final String AKKA_ROOT_SUPERVISOR_ACTOR_NAME="root";
 
-    private AtomicLong childrenCount = new AtomicLong(0);
-
     private Map<Class<? extends UntypedActor>,AtomicLong> actorStatistics = new HashMap<Class<? extends UntypedActor>, AtomicLong>();
 
     private Map<String,Class<? extends UntypedActor>> actorMap = new HashMap<String, Class<? extends UntypedActor>>();
@@ -99,7 +97,7 @@ public class SupervisorActor extends UntypedActor {
         }else if(o instanceof ActorOperate){
             //对子Actor的操作统一入口
             ActorOperate operate = (ActorOperate) o;
-            getContext().actorSelection("./"+operate.getActorName()).tell(new Identify(operate),getSelf());
+            getContext().actorSelection(operate.getActorName()).tell(new Identify(operate),getSelf());
         }else{
             unhandled(o);
         }

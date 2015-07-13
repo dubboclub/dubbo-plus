@@ -42,6 +42,6 @@ public class ConsumeActor implements BasicActor {
             Request request = new Request(message, serviceKey);
             return AkkaSystemContext.getActorSystemBootstrap(true).doRequest(request);
         }
-        return null;
+       throw new IllegalArgumentException("unsupported argument type "+message.getClass());
     }
 }

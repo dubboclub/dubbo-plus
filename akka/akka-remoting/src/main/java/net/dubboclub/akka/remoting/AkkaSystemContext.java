@@ -1,17 +1,10 @@
 package net.dubboclub.akka.remoting;
 
-import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
-import net.dubboclub.akka.remoting.exception.AkkaSystemException;
-
 /**
  * Created by bieber on 2015/7/8.
  */
 public class AkkaSystemContext {
-
-    public  static final String SERVICE_SLIDE="service";
-
-    public static final String CONSUME_SLIDE="consume";
 
     private volatile static ActorSystemBootstrap clientActorSystemBootstrap;
 
@@ -20,15 +13,13 @@ public class AkkaSystemContext {
     public static synchronized ActorSystemBootstrap initActorSystem(URL url,boolean isClient){
         if(isClient){
             if(clientActorSystemBootstrap==null){
-                String key = url.getParameter(Constants.APPLICATION_KEY);
-                clientActorSystemBootstrap = new ActorSystemBootstrap(CONSUME_SLIDE+"-"+key);
+                clientActorSystemBootstrap = new ActorSystemBootstrap(true);
                 clientActorSystemBootstrap.start(url);
             }
             return clientActorSystemBootstrap;
         }else{
             if(serverActorSystemBootstrap==null){
-                String key = url.getParameter(Constants.APPLICATION_KEY);
-                serverActorSystemBootstrap = new ActorSystemBootstrap(SERVICE_SLIDE+"-"+key);
+                serverActorSystemBootstrap = new ActorSystemBootstrap(false);
                 serverActorSystemBootstrap.start(url);
             }
             return serverActorSystemBootstrap;

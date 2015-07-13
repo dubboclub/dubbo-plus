@@ -7,10 +7,20 @@ import java.io.Serializable;
  */
 public class RequestPackage implements Serializable{
 
+    private long mId;
+
     private byte[] requestMessage;
 
-    public RequestPackage(byte[] requestMessage){
+    public RequestPackage(long mid,byte[] requestMessage){
         this.requestMessage = requestMessage;
+        this.mId=mid;
     }
 
+    public byte[] getRequestMessage() {
+        return requestMessage;
+    }
+
+    public long getmId() {
+        return mId;
+    }
 }

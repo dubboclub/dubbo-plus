@@ -46,7 +46,7 @@ public class AkkaFuture implements ResponseFuture {
         while(!isDone()){
             //waiting
         }
-        return null;
+        return response.getResult();
     }
 
     @Override

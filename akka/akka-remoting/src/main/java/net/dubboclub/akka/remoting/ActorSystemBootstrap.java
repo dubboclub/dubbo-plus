@@ -3,9 +3,10 @@ package net.dubboclub.akka.remoting;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.routing.RoundRobinRoutingLogic;
+import akka.routing.Router;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.Invoker;
-import com.alibaba.dubbo.rpc.support.ProtocolUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dubboclub.akka.remoting.actor.AkkaFuture;
@@ -14,6 +15,7 @@ import net.dubboclub.akka.remoting.actor.ServiceProvider;
 import net.dubboclub.akka.remoting.message.ActorOperate;
 import net.dubboclub.akka.remoting.message.RegisterActorWrapper;
 import net.dubboclub.akka.remoting.message.Request;
+import net.dubboclub.akka.remoting.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,10 +36,14 @@ public class ActorSystemBootstrap {
 
     private boolean isClient;
     
+    private Router router ;
 
-    public ActorSystemBootstrap(String name,boolean isClient){
-        systemName=name;
+    public static final String SYSTEM_NAME="DUBBO_AKKA";
+
+    public ActorSystemBootstrap(boolean isClient){
+        systemName=SYSTEM_NAME+"_"+(isClient?"CONSUMER":"PROVIDER");
         this.isClient = isClient;
+        router = new Router(new RoundRobinRoutingLogic());
     }
 
     public synchronized void start(URL url){
@@ -50,7 +56,11 @@ public class ActorSystemBootstrap {
                 mapConfig.put("akka.remote.netty.tcp.port",url.getPort());
                 config = ConfigFactory.load(ConfigFactory.parseMap(mapConfig));
             }else{
-                config = ConfigFactory.load();
+                Map<String,Object> mapConfig = new HashMap<String,Object>();
+                mapConfig.put("akka.actor.provider","akka.remote.RemoteActorRefProvider");
+                mapConfig.put("akka.remote.netty.tcp.hostname","127.0.0.1");
+                mapConfig.put("akka.remote.netty.tcp.port",Utils.selectUnbindPort());
+                config = ConfigFactory.load(ConfigFactory.parseMap(mapConfig));
             }
             system = ActorSystem.create(systemName,config);
             isStarted=true;
@@ -81,13 +91,13 @@ public class ActorSystemBootstrap {
     }
 
     public void registerService(Invoker<?> invoker){
-        String actorName = ProtocolUtils.serviceKey(invoker.getUrl());
-        RegisterActorWrapper wrapper = new RegisterActorWrapper(ServiceProvider.class,new Object[]{invoker},actorName);
+        String actorName = invoker.getUrl().getServiceKey();
+        RegisterActorWrapper wrapper = new RegisterActorWrapper(ServiceProvider.class,new Object[]{invoker}, Utils.formatActorName(actorName));
         supervisorActor.tell(wrapper, ActorRef.noSender());
     }
 
     public void unRegisterActor(String actorName){
-        ActorOperate operate = new ActorOperate(actorName, ActorOperate.Operate.DESTROY);
+        ActorOperate operate = new ActorOperate(Utils.formatActorName(actorName), ActorOperate.Operate.DESTROY);
         tellSupervisor(operate);
     }
 
@@ -100,8 +110,8 @@ public class ActorSystemBootstrap {
     }
     
     public void registerClient(Class<?> type,URL url){
-        String actorName = ProtocolUtils.serviceKey(url);
-        RegisterActorWrapper wrapper = new RegisterActorWrapper(ConsumeServiceLookup.class,new Object[]{type,url},actorName);
+        String actorName = url.getServiceKey();
+        RegisterActorWrapper wrapper = new RegisterActorWrapper(ConsumeServiceLookup.class,new Object[]{type,url},Utils.formatActorName(actorName));
         supervisorActor.tell(wrapper,ActorRef.noSender());
     }
 

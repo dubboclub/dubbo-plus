@@ -65,6 +65,7 @@ public class AkkaCodec {
         Bytes.long2bytes(response.getId(),header,4);
         header[3]=response.getStatus();
         int savedWriteIndex = buffer.writerIndex();
+        buffer.writerIndex(savedWriteIndex+HEADER_SIZE);
         ChannelBufferOutputStream bos = new ChannelBufferOutputStream(buffer);
         ObjectOutput objectOutput = serialization.serialize(url,bos);
         objectOutput.writeObject(response.getResult());

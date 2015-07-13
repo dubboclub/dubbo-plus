@@ -1,11 +1,14 @@
 package net.dubboclub.protocol.akka;
 
 import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.remoting.RemotingException;
+import com.alibaba.dubbo.remoting.exchange.ResponseFuture;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.protocol.AbstractInvoker;
+import net.dubboclub.akka.remoting.actor.AkkaFuture;
 import net.dubboclub.akka.remoting.actor.BasicActor;
 
 /**
@@ -36,8 +39,12 @@ public class AkkaInvoker<T> implements Invoker<T> {
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
         if(isAvailable){
-            actor.tell(invocation);
-
+            ResponseFuture future = actor.tell(invocation);
+            try {
+                return (Result) future.get();
+            } catch (RemotingException e) {
+                throw new RpcException("Akka invoker for type "+type+" is not available",e);
+            }
         }
         throw new RpcException("Akka invoker for type "+type+" is not available");
     }

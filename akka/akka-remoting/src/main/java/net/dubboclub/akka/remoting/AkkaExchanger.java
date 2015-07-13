@@ -7,6 +7,7 @@ import net.dubboclub.akka.remoting.actor.ConsumeActor;
 import net.dubboclub.akka.remoting.actor.ServiceActor;
 
 import com.alibaba.dubbo.common.URL;
+import net.dubboclub.akka.remoting.utils.Utils;
 
 
 /**
@@ -16,16 +17,16 @@ public class AkkaExchanger implements ActorExchanger {
     @Override
     public BasicActor bind(Invoker<?> invoker) {
         AkkaSystemContext.initActorSystem(invoker.getUrl(),false);
-        String serviceKey = ProtocolUtils.serviceKey(invoker.getUrl());
+        String serviceKey = invoker.getUrl().getServiceKey();
         AkkaSystemContext.getActorSystemBootstrap(false).registerService(invoker);
-        return new ServiceActor(serviceKey,AkkaSystemContext.getActorSystemBootstrap(false).getSupervisorActor());
+        return new ServiceActor(Utils.formatActorName(serviceKey),AkkaSystemContext.getActorSystemBootstrap(false).getSupervisorActor());
     }
 
     @Override
     public BasicActor connect(Class<?> type, URL url) {
         AkkaSystemContext.initActorSystem(url,true);
-        String serviceKey = ProtocolUtils.serviceKey(url);
+        String serviceKey = url.getServiceKey();
         AkkaSystemContext.getActorSystemBootstrap(true).registerClient(type,url);
-        return new ConsumeActor(serviceKey,AkkaSystemContext.getActorSystemBootstrap(true).getSupervisorActor());
+        return new ConsumeActor(Utils.formatActorName(serviceKey),AkkaSystemContext.getActorSystemBootstrap(true).getSupervisorActor());
     }
 }
