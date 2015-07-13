@@ -37,14 +37,14 @@ public class ConsumeServiceLookup extends RouterActor {
     @Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof Request){
-          /*  if(currentWorkerSize>=MAX_WORKER_SIZE){
+            if(currentWorkerSize>=MAX_WORKER_SIZE){
                 router.route(o,getSender());
-            }else{*/
+            }else{
                 ActorRef worker = getContext().actorOf(Props.create(new WorkerCreator(url)));
-                router.addRoutee(new ActorRefRoutee(worker));
+                router=router.addRoutee(new ActorRefRoutee(worker));
                 currentWorkerSize++;
                 worker.tell(o,getSender());
-            //}
+            }
         }else{
             unhandled(o);
         }

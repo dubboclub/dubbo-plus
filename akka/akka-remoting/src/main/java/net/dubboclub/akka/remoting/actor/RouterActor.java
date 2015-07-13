@@ -14,7 +14,7 @@ public abstract class RouterActor extends UntypedActor {
 
     protected Router router;
 
-    protected static final int MAX_WORKER_SIZE = 100;
+    protected static final int MAX_WORKER_SIZE = 500;
 
     protected LoggingAdapter logging = Logging.getLogger(getContext().system(),this);
 
@@ -30,7 +30,7 @@ public abstract class RouterActor extends UntypedActor {
         }else if("leastactive".equals(loadBalance)){
             routingLogic = new SmallestMailboxRoutingLogic();
         }else{
-            routingLogic = new RandomRoutingLogic();
+            routingLogic = new SmallestMailboxRoutingLogic();
         }
         router = new Router(routingLogic);
     }

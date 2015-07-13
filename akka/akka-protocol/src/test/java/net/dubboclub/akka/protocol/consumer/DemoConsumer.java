@@ -17,13 +17,32 @@ public class DemoConsumer {
         System.setProperty("dubbo.properties.file","dubbo-consumer.properties");
         ApplicationContext context = new ClassPathXmlApplicationContext("classpath:/spring/dubbo-consumer.xml");
         BeanFactory factory = context.getAutowireCapableBeanFactory();
-        MyFirstDubboService myFirstDubboService = (MyFirstDubboService) factory.getBean("myFirstDubboService");
-        User user=new User();
+        final MyFirstDubboService myFirstDubboService = (MyFirstDubboService) factory.getBean("myFirstDubboService");
+        final User user=new User();
         user.setAge("23");
         user.setName("bieber");
-        while (true){
-            System.out.println(myFirstDubboService.sayHello(user));
-            Thread.sleep(100);
+        for(int i=0;i<100;i++){
+            Thread t = new Thread(){
+                @Override
+                public void run() {
+                    long start = System.currentTimeMillis();
+                  for(int j=0;j<1000;j++){
+                      String result = myFirstDubboService.sayHello(user);
+                      if(j%100==0){
+                          System.out.println(result);
+                      }
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("Thread "+Thread.currentThread()+" cost time "+(System.currentTimeMillis()-start));
+                }
+            };
+            t.start();
         }
+
+
     }
 }
