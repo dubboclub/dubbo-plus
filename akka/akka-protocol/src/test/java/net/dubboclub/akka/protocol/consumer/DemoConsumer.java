@@ -21,15 +21,16 @@ public class DemoConsumer {
         final User user=new User();
         user.setAge("23");
         user.setName("bieber");
-        for(int i=0;i<100;i++){
+        for(int i=0;i<80;i++){
             Thread t = new Thread(){
                 @Override
                 public void run() {
+                    System.out.println(Thread.currentThread().getName());
                     long start = System.currentTimeMillis();
                   for(int j=0;j<1000;j++){
                       String result = myFirstDubboService.sayHello(user);
                       if(j%100==0){
-                          System.out.println(result);
+                          System.out.println(Thread.currentThread().getName()+"  "+result);
                       }
                         try {
                             Thread.sleep(100);

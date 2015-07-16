@@ -1,10 +1,8 @@
 package net.dubboclub.akka.remoting.utils;
 
-import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import net.dubboclub.akka.remoting.ActorSystemBootstrap;
-import net.dubboclub.akka.remoting.AkkaSystemContext;
-import net.dubboclub.akka.remoting.SupervisorActor;
+import net.dubboclub.akka.remoting.actor.dispatcher.DispatchActor;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -20,7 +18,7 @@ public class Utils {
         StringBuilder path = new StringBuilder();
         path.append("akka.tcp://").append(ActorSystemBootstrap.SYSTEM_NAME+"_PROVIDER").append("@");
         path.append(url.getAddress());
-        path.append("/user/").append(SupervisorActor.AKKA_ROOT_SUPERVISOR_ACTOR_NAME).append("/").append(actorName);
+        path.append("/user/").append(DispatchActor.AKKA_ROOT_SUPERVISOR_ACTOR_NAME).append("/").append(actorName);
         return path.toString();
     }
 

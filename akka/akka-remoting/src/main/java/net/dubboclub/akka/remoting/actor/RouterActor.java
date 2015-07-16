@@ -14,7 +14,7 @@ public abstract class RouterActor extends UntypedActor {
 
     protected Router router;
 
-    protected static final int MAX_WORKER_SIZE = 500;
+    protected static final int MAX_WORKER_SIZE = 10;
 
     protected LoggingAdapter logging = Logging.getLogger(getContext().system(),this);
 

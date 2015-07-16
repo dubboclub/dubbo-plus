@@ -1,9 +1,8 @@
 package net.dubboclub.akka.remoting.actor;
 
-import akka.actor.ActorRef;
+import akka.routing.Router;
 import com.alibaba.dubbo.remoting.exchange.ResponseFuture;
 import com.alibaba.dubbo.rpc.Invocation;
-import net.dubboclub.akka.remoting.ActorSystemBootstrap;
 import net.dubboclub.akka.remoting.AkkaSystemContext;
 import net.dubboclub.akka.remoting.message.Request;
 
@@ -14,11 +13,12 @@ public class ConsumeActor implements BasicActor {
 
     private String serviceKey;
 
-    private ActorRef parent;
+    private Router router;
 
-    public ConsumeActor(String serviceKey, ActorRef parent) {
+
+    public ConsumeActor(String serviceKey, Router router) {
         this.serviceKey = serviceKey;
-        this.parent = parent;
+        this.router = router;
     }
 
     @Override
@@ -32,9 +32,10 @@ public class ConsumeActor implements BasicActor {
     }
 
     @Override
-    public ActorRef getParent() {
-        return parent;
+    public Router getRouter() {
+        return router;
     }
+
 
     @Override
     public ResponseFuture tell(Object message) {

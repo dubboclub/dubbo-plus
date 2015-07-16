@@ -2,6 +2,7 @@ package net.dubboclub.akka.remoting.actor;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
+import akka.routing.Router;
 import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.exchange.ResponseFuture;
 import net.dubboclub.akka.remoting.ActorSystemBootstrap;
@@ -14,10 +15,10 @@ public class ServiceActor implements BasicActor{
     
     private String serviceKey;
 
-    private ActorRef parent;
+    private Router router;
     
-    public ServiceActor(String serviceKey,ActorRef parent){
-        this.parent = parent;
+    public ServiceActor(String serviceKey,Router router){
+        this.router = router;
         this.serviceKey = serviceKey;
     }
     @Override
@@ -30,9 +31,9 @@ public class ServiceActor implements BasicActor{
 
     }
 
-    @Override
-    public ActorRef getParent() {
-        return parent;
+
+    public Router getRouter() {
+        return router;
     }
 
     @Override

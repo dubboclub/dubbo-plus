@@ -30,19 +30,16 @@ public class ServiceProvider extends RouterActor {
     public void preStart() throws Exception {
         super.preStart();
         logging.info("start service {}", getSelf().path());
+        for(int i=0;i<MAX_WORKER_SIZE;i++){
+            ActorRef worker = getContext().actorOf(Props.create(new WorkerCreator(invoker)));
+            router=router.addRoutee(new ActorRefRoutee(worker));
+        }
     }
 
     @Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof RequestPackage){
-            if(currentWorkerSize>=MAX_WORKER_SIZE){
-                router.route(o,getSender());
-            }else{
-                ActorRef worker = getContext().actorOf(Props.create(new WorkerCreator(invoker)));
-                router=router.addRoutee(new ActorRefRoutee(worker));
-                currentWorkerSize++;
-                worker.tell(o,getSender());
-            }
+            router.route(o,getSender());
         }else{
             unhandled(o);
         }

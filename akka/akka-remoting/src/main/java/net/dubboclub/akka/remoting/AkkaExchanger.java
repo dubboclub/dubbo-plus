@@ -19,7 +19,7 @@ public class AkkaExchanger implements ActorExchanger {
         AkkaSystemContext.initActorSystem(invoker.getUrl(),false);
         String serviceKey = invoker.getUrl().getServiceKey();
         AkkaSystemContext.getActorSystemBootstrap(false).registerService(invoker);
-        return new ServiceActor(Utils.formatActorName(serviceKey),AkkaSystemContext.getActorSystemBootstrap(false).getSupervisorActor());
+        return new ServiceActor(Utils.formatActorName(serviceKey),AkkaSystemContext.getActorSystemBootstrap(false).getSupervisorRouter());
     }
 
     @Override
@@ -27,6 +27,6 @@ public class AkkaExchanger implements ActorExchanger {
         AkkaSystemContext.initActorSystem(url,true);
         String serviceKey = url.getServiceKey();
         AkkaSystemContext.getActorSystemBootstrap(true).registerClient(type,url);
-        return new ConsumeActor(Utils.formatActorName(serviceKey),AkkaSystemContext.getActorSystemBootstrap(true).getSupervisorActor());
+        return new ConsumeActor(Utils.formatActorName(serviceKey),AkkaSystemContext.getActorSystemBootstrap(true).getSupervisorRouter());
     }
 }

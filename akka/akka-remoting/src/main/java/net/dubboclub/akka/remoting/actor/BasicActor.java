@@ -1,6 +1,7 @@
 package net.dubboclub.akka.remoting.actor;
 
 import akka.actor.ActorRef;
+import akka.routing.Router;
 import com.alibaba.dubbo.remoting.exchange.ResponseFuture;
 
 /**
@@ -12,7 +13,7 @@ public interface BasicActor {
     
     public void restart();
     
-    public ActorRef getParent();
+    public Router getRouter();
     
     public ResponseFuture tell(Object message);
     

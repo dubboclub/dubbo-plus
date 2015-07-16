@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-    <dubbo:protocol name="dubbo" port="20881"/>
+    <dubbo:protocol name="akka" port="20881"/>
     <dubbo:service  interface="net.dubboclub.akka.protocol.service.MyFirstDubboService"
                    ref="myFirstDubboService"/>
     <dubbo:service interface="net.dubboclub.akka.protocol.service.MyFirstDubboService"
