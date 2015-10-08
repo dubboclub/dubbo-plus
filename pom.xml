@@ -22,8 +22,8 @@
         <java_source_version>1.6</java_source_version>
         <java_target_version>1.6</java_target_version>
         <file_encoding>UTF-8</file_encoding>
-        
-        
+
+        <netty.version>4.0.24.Final</netty.version>
         <maven_source_plugin_version>2.1.1</maven_source_plugin_version>
         <maven_jar_plugin_version>2.3.2</maven_jar_plugin_version>
         <maven_war_plugin_version>2.1.1</maven_war_plugin_version>
@@ -49,14 +49,18 @@
             <version>1.7.7</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
     </dependencies>
     <modules>
         <module>cache</module>
         <module>cricuitbreaker</module>
         <module>dubbo-plus-all</module>
-        <module>akka-plugin</module>
-        <module>akka-remoting</module>
         <module>akka</module>
+        <module>netty4</module>
     </modules>
     <build>
         <plugins>
