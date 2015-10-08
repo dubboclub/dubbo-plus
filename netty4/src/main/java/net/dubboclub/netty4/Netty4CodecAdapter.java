@@ -81,23 +81,24 @@ public class Netty4CodecAdapter {
             if (readable <= 0) {
                 return;
             }
+            byte[] bytes= new byte[readable];
+            input.readBytes(bytes);
             ChannelBuffer message;
             if (buffer.readable()) {
                 if (buffer instanceof DynamicChannelBuffer) {
-                    buffer.writeBytes(input.nioBuffer());
+                    buffer.writeBytes(bytes);
                     message = buffer;
                 } else {
                     int size = buffer.readableBytes() + input.readableBytes();
                     message = ChannelBuffers.dynamicBuffer(
                             size > bufferSize ? size : bufferSize);
                     message.writeBytes(buffer, buffer.readableBytes());
-                    message.writeBytes(input.nioBuffer());
+                    message.writeBytes(bytes);
                 }
             } else {
                 message = ChannelBuffers.wrappedBuffer(
-                        input.nioBuffer());
+                        bytes);
             }
-
             Netty4Channel channel = Netty4Channel.getOrAddChannel(channelHandlerContext.channel(), url, handler);
             Object msg;
             int saveReaderIndex;
