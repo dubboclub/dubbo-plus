@@ -51,6 +51,8 @@ public class Netty4Server extends AbstractServer {
         final Netty4Handler nettyHandler = new Netty4Handler(getUrl(), this);
         channels = nettyHandler.getChannels();
         bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                .option(ChannelOption.SO_KEEPALIVE,true)
+                .option(ChannelOption.TCP_NODELAY,true)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {

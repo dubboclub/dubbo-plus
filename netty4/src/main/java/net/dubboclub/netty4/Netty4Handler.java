@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by bieber on 2015/10/8.
  */
+@io.netty.channel.ChannelHandler.Sharable
 public class Netty4Handler extends SimpleChannelInboundHandler {
 
     private final Map<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
