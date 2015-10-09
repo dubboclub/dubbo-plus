@@ -53,7 +53,9 @@ public class Netty4CodecAdapter {
         //encode值是将ChannelBuffer复制到netty的bytebuf中
         @Override
         protected void encode(ChannelHandlerContext channelHandlerContext, ChannelBuffer message, ByteBuf byteBuf) throws Exception {
-            byteBuf.writeBytes(message.toByteBuffer());
+            byte[] bytes = new byte[message.readableBytes()];
+            message.readBytes(bytes);
+            byteBuf.writeBytes(bytes);
         }
     }
 
