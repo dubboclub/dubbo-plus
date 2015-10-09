@@ -2,11 +2,16 @@ package net.dubboclub.netty4;
 
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.remoting.ChannelHandler;
+import com.alibaba.dubbo.remoting.Codec;
+import com.alibaba.dubbo.remoting.Codec2;
 import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.transport.AbstractChannel;
+import com.alibaba.dubbo.remoting.transport.codec.CodecAdapter;
+import com.alibaba.dubbo.rpc.RpcContext;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
@@ -23,6 +28,8 @@ public class Netty4Channel extends AbstractChannel {
     private static final Logger logger = LoggerFactory.getLogger(Netty4Channel.class);
 
     private static final ConcurrentMap<Channel, Netty4Channel> channelMap = new ConcurrentHashMap<io.netty.channel.Channel, Netty4Channel>();
+
+    private final Codec2 codec;
     
     //netty channel
     private Channel originChannel;
@@ -35,6 +42,17 @@ public class Netty4Channel extends AbstractChannel {
             throw new IllegalArgumentException("netty channel == null;");
         }
         this.originChannel = channel;
+        codec=getChannelCodec(url);
+    }
+
+    protected Codec2 getChannelCodec(URL url) {
+        String codecName = url.getParameter(Constants.CODEC_KEY, "telnet");
+        if (ExtensionLoader.getExtensionLoader(Codec2.class).hasExtension(codecName)) {
+            return ExtensionLoader.getExtensionLoader(Codec2.class).getExtension(codecName);
+        } else {
+            return new CodecAdapter(ExtensionLoader.getExtensionLoader(Codec.class)
+                    .getExtension(codecName));
+        }
     }
 
     static Netty4Channel getOrAddChannel(Channel ch, URL url, ChannelHandler handler) {
@@ -65,7 +83,10 @@ public class Netty4Channel extends AbstractChannel {
         boolean success = true;
         int timeout = 0;
         try {
-            ChannelFuture future = originChannel.writeAndFlush(message);
+            com.alibaba.dubbo.remoting.buffer.ChannelBuffer buffer =
+                    com.alibaba.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(1024);
+            codec.encode(this, buffer, message);
+            ChannelFuture future = originChannel.writeAndFlush(buffer);
             if (sent) {
                 timeout = getUrl().getPositiveParameter(Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
                 success = future.await(timeout);

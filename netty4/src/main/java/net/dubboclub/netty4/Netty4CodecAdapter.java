@@ -7,6 +7,7 @@ import com.alibaba.dubbo.remoting.Codec2;
 import com.alibaba.dubbo.remoting.buffer.ChannelBuffer;
 import com.alibaba.dubbo.remoting.buffer.ChannelBuffers;
 import com.alibaba.dubbo.remoting.buffer.DynamicChannelBuffer;
+import com.alibaba.dubbo.rpc.RpcContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -47,20 +48,12 @@ public class Netty4CodecAdapter {
     public io.netty.channel.ChannelHandler getDecoder() {
         return decoder;
     }
-    private class InternalEncoder extends MessageToByteEncoder{
-
-
+    
+    private class InternalEncoder extends MessageToByteEncoder<ChannelBuffer>{
+        //encode值是将ChannelBuffer复制到netty的bytebuf中
         @Override
-        protected void encode(ChannelHandlerContext channelHandlerContext, Object o, ByteBuf byteBuf) throws Exception {
-            com.alibaba.dubbo.remoting.buffer.ChannelBuffer buffer =
-                    com.alibaba.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(1024);
-            Netty4Channel channel = Netty4Channel.getOrAddChannel(channelHandlerContext.channel(), url, handler);
-            try {
-                codec.encode(channel, buffer, o);
-            } finally {
-                Netty4Channel.removeChannelIfDisconnected(channelHandlerContext.channel());
-            }
-            byteBuf.writeBytes(buffer.toByteBuffer());
+        protected void encode(ChannelHandlerContext channelHandlerContext, ChannelBuffer message, ByteBuf byteBuf) throws Exception {
+            byteBuf.writeBytes(message.toByteBuffer());
         }
     }
 
