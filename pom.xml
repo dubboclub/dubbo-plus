@@ -61,6 +61,7 @@
         <module>dubbo-plus-all</module>
         <module>akka</module>
         <module>netty4</module>
+        <module>dubbo-generator</module>
     </modules>
     <build>
         <plugins>
