@@ -30,6 +30,8 @@
         <maven_install_plugin_version>2.3.1</maven_install_plugin_version>
         <maven_deploy_plugin_version>2.7</maven_deploy_plugin_version>
         <maven_compiler_plugin_version>2.3.2</maven_compiler_plugin_version>
+        <fasejson.version>1.2.4</fasejson.version>
+        <slf4j.version>1.7.7</slf4j.version>
     </properties>
     <dependencies>
         <dependency>
@@ -46,13 +48,18 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.7</version>
+            <version>${slf4j.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fasejson.version}</version>
         </dependency>
     </dependencies>
     <modules>

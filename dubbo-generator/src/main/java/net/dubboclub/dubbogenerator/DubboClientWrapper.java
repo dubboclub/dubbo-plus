@@ -4,8 +4,8 @@ package net.dubboclub.dubbogenerator;
 import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.ReferenceConfig;
-import com.pinganfu.mobile.dubboplus.dubbogen.handler.DefaultInvokeHandler;
-import com.pinganfu.mobile.dubboplus.dubbogen.handler.InvokeHandler;
+import net.dubboclub.dubbogenerator.handler.DefaultInvokeHandler;
+import net.dubboclub.dubbogenerator.handler.InvokeHandler;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
