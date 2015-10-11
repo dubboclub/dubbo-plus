@@ -35,3 +35,23 @@ dubbo.reference.client=netty4
 同样也可以采用dubbo.properties进行配置
 添加 dubbo.provider.server=netty4即可。
 
+##和Netty3压测对比数据报告
+
+下面测试是每个线程连续调用1000次得到的数据
+
+![](https://raw.githubusercontent.com/dubboclub/dubbo-plus/master/netty4/performance-test-report/1kb.png)
+
+
+![](https://raw.githubusercontent.com/dubboclub/dubbo-plus/master/netty4/performance-test-report/2kb.png)
+
+
+![](https://raw.githubusercontent.com/dubboclub/dubbo-plus/master/netty4/performance-test-report/4kb.png)
+
+
+![](https://raw.githubusercontent.com/dubboclub/dubbo-plus/master/netty4/performance-test-report/8kb.png)
+
+硬件配置：
+
+CPU:Intel(R) Core(TM) i7-4702MQ CPU @2.20GHz 2.20GHz
+
+内存:8GB
