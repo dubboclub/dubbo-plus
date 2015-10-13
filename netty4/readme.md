@@ -38,10 +38,10 @@ dubbo.reference.client=netty4
 同样也可以采用dubbo.properties进行配置
 添加 dubbo.provider.server[transporter]=netty4或者dubbo.provider.transporter=netty4即可。
 
-> **注意：**对于服务端开启netty4，需要注意一点，通过上面配置知道开启方式可以通过配置server参数和transporter参数，合适配置server，那么合适配置transporter呢？
+> **注意：**对于服务端开启netty4，需要注意一点，通过上面配置知道开启方式可以通过配置server参数和transporter参数，何时配置server，那么何时配置transporter呢？
 > 加入你当前系统中所有子应用都全体切换成netty4，那么可以随便配置一个即可，如果只是部分系统切换了，就需要注意，因为通过server配置发布的服务会将这个参数带到客户端，并且客户端会获取这个参数，
-> 除非客户端通过上面的方式设置了client的类型，否则将会把这个server参数来进行远程通信。如果此时客户端并没有引用netty4插件的包，会导致连接失败，导致服务不可用，
-> 而transporter参数并不会被客户端使用。所以这里需要特别注意。
+> 除非客户端通过上面的方式设置了client的类型，否则将会通过这个server参数来选择远程通信框架（默认是netty，即netty3）。如果此时客户端并没有引用netty4插件的包，会导致连接失败，导致服务不可用，
+> 而transporter参数并不会被客户端使用，所以此时可以通过transporter来进行配置。所以这里需要特别注意。
 
 ##和Netty3压测对比数据报告
 
