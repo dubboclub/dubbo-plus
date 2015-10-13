@@ -38,7 +38,7 @@ public class Netty4Client extends AbstractClient {
 
     @Override
     protected void doOpen() throws Throwable {
-        EventLoopGroup bossGroup = new NioEventLoopGroup( Constants.DEFAULT_IO_THREADS,new NamedThreadFactory("NettyClientBoss"));
+        EventLoopGroup bossGroup = new NioEventLoopGroup( Constants.DEFAULT_IO_THREADS,new NamedThreadFactory("NettyClientBoss",true));
         final Netty4Handler nettyHandler = new Netty4Handler(getUrl(), this);
         bootstrap = new Bootstrap();
         bootstrap.group(bossGroup).channel(NioSocketChannel.class)
