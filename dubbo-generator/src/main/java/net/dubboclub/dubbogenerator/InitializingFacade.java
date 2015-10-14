@@ -9,11 +9,12 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by bieber on 2015/8/7.
  */
-public class FacadeInitialization implements InitializingBean,BeanFactoryAware{
+public class InitializingFacade implements InitializingBean,BeanFactoryAware{
 
     private List<Class<?>> clientClassList;
     
@@ -35,7 +36,7 @@ public class FacadeInitialization implements InitializingBean,BeanFactoryAware{
         definition.setScope(BeanDefinition.SCOPE_SINGLETON);
         definition.setLazyInit(false);
         definition.getPropertyValues().addPropertyValue("type",type);
-        beanFactory.registerBeanDefinition(type.getSimpleName(),definition);
+        beanFactory.registerBeanDefinition(type.getName(),definition);
     }
 
     public void setClientClassList(List<Class<?>> clientClassList) {

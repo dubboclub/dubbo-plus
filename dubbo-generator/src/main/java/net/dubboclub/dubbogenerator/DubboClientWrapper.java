@@ -22,12 +22,26 @@ public class DubboClientWrapper {
     
     private static final ConcurrentHashMap<Class<?>,Object> HANDLER_CACHE = new ConcurrentHashMap<Class<?>, Object>();
     
-    private static final String DEFAULT_WRAPPER_HANDLER_KEY="default.dubbo.wrapper.handler";
+    private static final String DEFAULT_WRAPPER_HANDLER_KEY="dubbo.wrapper.default.handler";
+    
+    private static final String INVOKE_HANDLER_KEY_SUFFIX=".handler";
+    
+    private static final String DUBBO_WRAPPER_KEY_PREFIX="dubbo.wrapper.";
     
     //包装计数器
     private static final AtomicLong WRAPPER_COUNTER = new AtomicLong(0);
     
+    
+    private static Class<? extends  InvokeHandler> DEFAULT_HANDLER = DefaultInvokeHandler.class;
+    
     private static volatile boolean isShutdown = false;
+    
+    private static volatile boolean hadSetDefaultHandler = false;
+    
+    //动态类的标记接口
+    public interface DCW{
+
+    }//mark dynamic facade wrapper
     
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(){
@@ -37,34 +51,19 @@ public class DubboClientWrapper {
                 WRAPPER_CACHE.clear();
             }
         });
-        
+        String handlerClassName = ConfigUtils.getProperty(DEFAULT_WRAPPER_HANDLER_KEY);
+        if(!StringUtils.isEmpty(handlerClassName)){
+            DEFAULT_HANDLER = generateHandler(handlerClassName);
+        }
     }
-    
-    //动态类的标记接口
-    public interface DCW{
 
-    }//mark dynamic facade wrapper
-    
-    
 
     public static<T extends Object> T getWrapper(Class<T> clientType,String id){
-        String handlerClassName = ConfigUtils.getProperty(DEFAULT_WRAPPER_HANDLER_KEY);
-        Class<?> handlerClass = DefaultInvokeHandler.class;
-        if(!StringUtils.isEmpty(handlerClassName)){
-            try {
-                handlerClass = Class.forName(handlerClassName);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Class ["+handlerClassName+"] not found ,please check property [default.dubbo.wrapper.handler]",e);
-            }
-            if(!InvokeHandler.class.isAssignableFrom(handlerClass)){
-                throw new IllegalArgumentException("Class ["+handlerClassName+"] must implements InvokerHandler or extends sub class,please check property [default.dubbo.wrapper.handler]");
-            }
-        }
-        return getWrapper(clientType,id, (Class<? extends InvokeHandler>) handlerClass);
+        return getWrapper(clientType,id, null);
     }
 
     public static<T extends Object> T getWrapper(Class<T> clientType,Class<? extends InvokeHandler> handler){
-        return getWrapper(clientType,clientType.getSimpleName(),handler);
+        return getWrapper(clientType,null,handler);
     }
     /**
      * 对外提供的接口，获取指定类型的dubbo客户端引用
@@ -74,7 +73,7 @@ public class DubboClientWrapper {
      * @return
      */
     public static<T extends Object> T getWrapper(Class<T> clientType){
-        return getWrapper(clientType,clientType.getSimpleName());
+        return getWrapper(clientType,generateClientId(clientType));
     }
     
     public static<T extends Object> T getWrapper(Class<T> clientType,String id,Class<? extends InvokeHandler> handler){
@@ -83,7 +82,10 @@ public class DubboClientWrapper {
         }
         T clientInstance = null;
         if(StringUtils.isEmpty(id)){
-            id = clientType.getSimpleName();
+            id = generateClientId(clientType);
+        }
+        if(handler==null){
+            handler = getInvokeHandler(clientType);
         }
         if(WRAPPER_CACHE.containsKey(clientType)){
             clientInstance =  (T) WRAPPER_CACHE.get(clientType);
@@ -97,6 +99,16 @@ public class DubboClientWrapper {
         return clientInstance;
     }
 
+
+    
+    public static synchronized void setDefaultHandler(Class<? extends InvokeHandler> handler){
+        if(hadSetDefaultHandler){
+            throw new IllegalStateException("had already set default InvokeHandler ["+DEFAULT_HANDLER.getName()+"].");
+        }
+        hadSetDefaultHandler=true;
+        DEFAULT_HANDLER=handler;
+    }
+
     /**
      * 判断当前类是不是包装类
      * @param type
@@ -105,7 +117,33 @@ public class DubboClientWrapper {
     public static boolean isWrapped(Class<?> type){
         return DCW.class.isAssignableFrom(type);
     }
+    
+    private static String generateClientId(Class<?> clientType){
+        return "["+clientType.getName()+"]";
+    }
 
+    private static Class<? extends InvokeHandler> getInvokeHandler(Class<?> clientType){
+        String id = generateClientId(clientType);
+        //dubbo.wrapper.[clientfacadefullname].handler
+        String handlerName = ConfigUtils.getProperty(DUBBO_WRAPPER_KEY_PREFIX + id + INVOKE_HANDLER_KEY_SUFFIX);
+        if(StringUtils.isEmpty(handlerName)){
+            return DEFAULT_HANDLER;
+        }
+        return generateHandler(handlerName);
+        
+    }
+
+    private static Class<? extends InvokeHandler> generateHandler(String handlerClassName){
+        try {
+            Class<?> handlerClass = Class.forName(handlerClassName);
+            if(!InvokeHandler.class.isAssignableFrom(handlerClass)){
+                throw new IllegalArgumentException("Class ["+handlerClassName+"] must implements InvokerHandler or extends sub class,please check property [default.dubbo.wrapper.handler]");
+            }
+            return (Class<? extends InvokeHandler>) handlerClass;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Class ["+handlerClassName+"] not found ,please check property [default.dubbo.wrapper.handler]",e);
+        }
+    }
     /**
      * 构造一个新的指定类型的Dubbo客户端引用
      * @param clientType 该参数只能是接口类型，不支持其他类型
