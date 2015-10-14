@@ -8,7 +8,7 @@
     <dependency>
          <groupId>net.dubboclub</groupId>
          <artifactId>netty4</artifactId>
-         <version>0.0.4</version>
+         <version>${dubboclub.netty4.version}</version>
     </dependency>
 
 ##客户端加入Netty4插件

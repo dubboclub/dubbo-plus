@@ -16,7 +16,7 @@
      <dependency>
          <groupId>net.dubboclub</groupId>
          <artifactId>dubbo-generator</artifactId>
-         <version>${generator.version}</version>
+         <version>${dubboclub.generator.version}</version>
       </dependency>
 ###引入远程服务新方式
 
