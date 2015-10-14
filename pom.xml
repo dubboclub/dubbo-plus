@@ -69,6 +69,7 @@
         <module>akka</module>
         <module>netty4</module>
         <module>dubbo-generator</module>
+        <module>restful</module>
     </modules>
     <build>
         <plugins>
