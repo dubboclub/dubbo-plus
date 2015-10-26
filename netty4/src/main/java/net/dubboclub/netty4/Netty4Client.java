@@ -43,7 +43,7 @@ public class Netty4Client extends AbstractClient {
         bootstrap = new Bootstrap();
         bootstrap.group(bossGroup).channel(NioSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.SO_TIMEOUT, getTimeout())
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getTimeout())
                 .option(ChannelOption.TCP_NODELAY,true)
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
