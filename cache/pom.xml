@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.dubboclub</groupId>
         <artifactId>dubbo-plus</artifactId>
-        <version>0.0.5</version>
+        <version>0.0.6</version>
     </parent>
     <artifactId>cache</artifactId>
     <properties>

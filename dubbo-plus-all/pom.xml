@@ -5,12 +5,12 @@
     <parent>
         <artifactId>dubbo-plus</artifactId>
         <groupId>net.dubboclub</groupId>
-        <version>0.0.5</version>
+        <version>0.0.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>dubbo-plus-all</artifactId>
-    
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>net.dubboclub</groupId>
@@ -22,6 +22,16 @@
             <artifactId>cache</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.dubboclub</groupId>
+            <artifactId>dubbo-generator</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.dubboclub</groupId>
+            <artifactId>netty4</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -30,7 +40,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>none</phase>
+                        <phase>verify</phase>
                     </execution>
                 </executions>
                 <configuration>
@@ -64,7 +74,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.4</version>
+                <version>2.4.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -76,8 +86,10 @@
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
                                 <includes>
-                                    <include>com.dubboclub:cache</include>
-                                    <include>com.dubboclub:cricuitbreaker</include>
+                                    <include>net.dubboclub:cache</include>
+                                    <include>net.dubboclub:cricuitbreaker</include>
+                                    <include>net.dubboclub:dubbo-generator</include>
+                                    <include>net.dubboclub:netty4</include>
                                 </includes>
                             </artifactSet>
                             <transformers>
@@ -88,6 +100,10 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/dubbo/com.alibaba.dubbo.cache.CacheFactory</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>readme.md</resource>
                                 </transformer>
                             </transformers>
                         </configuration>
