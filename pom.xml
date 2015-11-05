@@ -68,6 +68,7 @@
         <module>dubbo-plus-all</module>
         <module>netty4</module>
         <module>dubbo-generator</module>
+        <module>restful</module>
     </modules>
     <build>
         <plugins>
