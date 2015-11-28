@@ -10,7 +10,7 @@
  <dependency>
        <groupId>net.dubboclub</groupId>
         <artifactId>cat-monitor</artifactId>
-         <version>1.0.8</version>
+         <version>0.0.6</version>
      </dependency>
 ```
 
