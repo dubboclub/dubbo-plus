@@ -1,0 +1,2 @@
+catTransaction=com.pinganfu.mobile.dubboplus.cat.CatTransaction
+appnameAppend=com.pinganfu.mobile.dubboplus.cat.AppNameAppendFilter
