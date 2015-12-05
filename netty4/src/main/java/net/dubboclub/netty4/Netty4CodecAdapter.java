@@ -49,12 +49,10 @@ public class Netty4CodecAdapter {
         return decoder;
     }
     
-    private class InternalEncoder extends MessageToByteEncoder<ChannelBuffer>{
+    private class InternalEncoder extends MessageToByteEncoder<byte[]>{
         //encode值是将ChannelBuffer复制到netty的bytebuf中
         @Override
-        protected void encode(ChannelHandlerContext channelHandlerContext, ChannelBuffer message, ByteBuf byteBuf) throws Exception {
-            byte[] bytes = new byte[message.readableBytes()];
-            message.readBytes(bytes);
+        protected void encode(ChannelHandlerContext channelHandlerContext, byte[] bytes, ByteBuf byteBuf) throws Exception {
             byteBuf.writeBytes(bytes);
         }
     }
