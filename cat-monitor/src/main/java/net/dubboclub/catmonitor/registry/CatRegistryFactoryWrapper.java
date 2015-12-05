@@ -5,7 +5,7 @@ import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.NotifyListener;
 import com.alibaba.dubbo.registry.Registry;
 import com.alibaba.dubbo.registry.RegistryFactory;
-import com.pinganfu.mobile.dubboplus.cat.constants.CatConstants;
+import net.dubboclub.catmonitor.constants.CatConstants;
 
 import java.util.List;
 

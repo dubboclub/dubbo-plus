@@ -9,11 +9,11 @@ import com.alibaba.dubbo.rpc.*;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.*;
 import com.dianping.cat.message.internal.AbstractMessage;
-import com.dianping.cat.message.internal.DefaultForkedTransaction;
 import com.dianping.cat.message.spi.MessageTree;
-import com.pinganfu.mobile.dubboplus.cat.constants.CatConstants;
+import net.dubboclub.catmonitor.constants.CatConstants;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -28,18 +28,14 @@ public class CatTransaction implements Filter {
     
     private final static String DUBBO_REMOTING_ERROR="DUBBO_REMOTING_ERROR";
 
-    private static final String PINGANFU_PACKAGE_PREFIX="com.pinganfu";
+
+    private static final ThreadLocal<Cat.Context> CAT_CONTEXT = new ThreadLocal<Cat.Context>();
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        long start = System.currentTimeMillis();
         if(!DubboCat.isEnable()){
             Result result =  invoker.invoke(invocation);
             return result;
-        }
-        boolean hasContext = false;
-        if(Cat.getManager().hasContext()){
-            hasContext=true;
         }
         URL url = invoker.getUrl();
         String sideKey = url.getParameter(Constants.SIDE_KEY);
@@ -48,22 +44,18 @@ public class CatTransaction implements Filter {
         if(Constants.PROVIDER_SIDE.equals(sideKey)){
             type= CatConstants.CROSS_SERVER;
         }
-        Transaction transaction =null;
-
-        if(hasContext){
-            transaction = Cat.newTaggedTransaction(type,loggerName,"DUBBO-CROSS");
-        }else{
-            transaction = Cat.newTransaction(type,loggerName);
-        }
+        Transaction transaction = Cat.newTransaction(type,loggerName);
         Result result=null;
         try{
+            Cat.Context context = getContext();
             if(Constants.CONSUMER_SIDE.equals(sideKey)){
-                hasForkedMessage();
-                generateFork();
                 createConsumerCross(url,transaction);
+                Cat.logRemoteCallClient(context);
             }else{
                 createProviderCross(url,transaction);
+                Cat.logRemoteCallServer(context);
             }
+            setAttachment(context);
             result =  invoker.invoke(invocation);
 
             if(result.hasException()){
@@ -73,7 +65,7 @@ public class CatTransaction implements Filter {
                 if(RpcException.class==throwable.getClass()){
                     Throwable caseBy = throwable.getCause();
                     if(caseBy!=null&&caseBy.getClass()==TimeoutException.class){
-                        event = Cat.newEvent(DUBBO_TIMEOUT_ERROR,loggerName); 
+                        event = Cat.newEvent(DUBBO_TIMEOUT_ERROR,loggerName);
                     }else{
                         event = Cat.newEvent(DUBBO_REMOTING_ERROR,loggerName);
                     }
@@ -113,27 +105,22 @@ public class CatTransaction implements Filter {
             }
         }finally {
             transaction.complete();
-            System.out.println(System.currentTimeMillis()-start+"ms");
+            CAT_CONTEXT.remove();
         }
     }
 
-    private void hasForkedMessage(){
-        Map<String,String> attachments = RpcContext.getContext().getAttachments();
-        MessageTree messageTree = Cat.getManager().getThreadLocalMessageTree();
-        if (attachments.containsKey(CatConstants.FORK_MESSAGE_ID)&&messageTree != null) {
-            messageTree.setMessageId(attachments.get(CatConstants.FORK_MESSAGE_ID));
-            //messageTree.setRootMessageId(attachments.get(CatConstants.FORK_ROOT_MESSAGE_ID) == null ? attachments.get(CatConstants.FORK_PARENT_MESSAGE_ID) : attachments.get(CatConstants.FORK_ROOT_MESSAGE_ID));
-            messageTree.setParentMessageId(attachments.get(CatConstants.FORK_PARENT_MESSAGE_ID));
-        }
-    }
+    static class DubboCatContext implements Cat.Context{
 
-    private void generateFork(){
-        MessageTree messageTree =  Cat.getManager().getThreadLocalMessageTree();
-        DefaultForkedTransaction forkedTransaction = (DefaultForkedTransaction) Cat.newForkedTransaction("show", "");
-        if(messageTree!=null){
-            RpcContext.getContext().setAttachment(CatConstants.FORK_MESSAGE_ID,forkedTransaction.getForkedMessageId());
-            RpcContext.getContext().setAttachment(CatConstants.FORK_PARENT_MESSAGE_ID,messageTree.getMessageId());
-            RpcContext.getContext().setAttachment(CatConstants.FORK_ROOT_MESSAGE_ID,messageTree.getRootMessageId());
+        private Map<String,String> properties = new HashMap<String, String>();
+
+        @Override
+        public void addProperty(String key, String value) {
+            properties.put(key,value);
+        }
+
+        @Override
+        public String getProperty(String key) {
+            return properties.get(key);
         }
     }
 
@@ -141,13 +128,37 @@ public class CatTransaction implements Filter {
         String appName = url.getParameter(CatConstants.PROVIDER_APPLICATION_NAME);
         if(StringUtils.isEmpty(appName)){
             String interfaceName  = url.getParameter(Constants.INTERFACE_KEY);
-            if(interfaceName.startsWith(PINGANFU_PACKAGE_PREFIX)){
-                appName = StringUtils.split(interfaceName,".")[2];
-            }else{
-                appName = interfaceName.substring(0,interfaceName.lastIndexOf('.'));
-            }
+            appName = interfaceName.substring(0,interfaceName.lastIndexOf('.'));
         }
         return appName;
+    }
+
+    private void setAttachment(Cat.Context context){
+        RpcContext.getContext().setAttachment(Cat.Context.ROOT,context.getProperty(Cat.Context.ROOT));
+        RpcContext.getContext().setAttachment(Cat.Context.CHILD,context.getProperty(Cat.Context.CHILD));
+        RpcContext.getContext().setAttachment(Cat.Context.PARENT,context.getProperty(Cat.Context.PARENT));
+    }
+
+    private Cat.Context getContext(){
+        Cat.Context context = CAT_CONTEXT.get();
+        if(context==null){
+            context = initContext();
+            CAT_CONTEXT.set(context);
+        }
+        return context;
+    }
+
+    private Cat.Context initContext(){
+        Cat.Context context = new DubboCatContext();
+        Map<String,String> attachments = RpcContext.getContext().getAttachments();
+        if(attachments!=null&&attachments.size()>0){
+            for(Map.Entry<String,String> entry:attachments.entrySet()){
+                if(Cat.Context.CHILD.equals(entry.getKey())||Cat.Context.ROOT.equals(entry.getKey())||Cat.Context.PARENT.equals(entry.getKey())){
+                    context.addProperty(entry.getKey(),entry.getValue());
+                }
+            }
+        }
+        return context;
     }
 
     private void createConsumerCross(URL url,Transaction transaction){

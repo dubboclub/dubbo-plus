@@ -1,1 +1,1 @@
-catRegistryFactoryWrapper=com.pinganfu.mobile.dubboplus.cat.registry.CatRegistryFactoryWrapper
+catRegistryFactoryWrapper=net.dubboclub.catmonitor.registry.CatRegistryFactoryWrapper

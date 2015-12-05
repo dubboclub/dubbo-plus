@@ -1,2 +1,2 @@
-catTransaction=com.pinganfu.mobile.dubboplus.cat.CatTransaction
-appnameAppend=com.pinganfu.mobile.dubboplus.cat.AppNameAppendFilter
+catTransaction=net.dubboclub.catmonitor.CatTransaction
+appnameAppend=net.dubboclub.catmonitor.AppNameAppendFilter

@@ -12,5 +12,12 @@
     <groupId>net.dubboclub</groupId>
     <artifactId>cat-monitor</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.dianping.cat</groupId>
+            <artifactId>cat-client</artifactId>
+            <version>1.3.6-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
