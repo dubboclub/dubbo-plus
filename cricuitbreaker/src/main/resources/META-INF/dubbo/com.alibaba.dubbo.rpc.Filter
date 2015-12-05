@@ -1,1 +1,1 @@
-circuitBreaker=net.dubboclub.cricuitbreaker.filter.RemoteFacadeCircuitBreaker
+circuitBreaker=net.dubboclub.cricuitbreaker.RemoteFacadeCircuitBreaker

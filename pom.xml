@@ -10,7 +10,7 @@
 
     <groupId>net.dubboclub</groupId>
     <artifactId>dubbo-plus</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
     <packaging>pom</packaging>
     <properties>
         <dubbo.version>2.5.3</dubbo.version>
@@ -66,10 +66,9 @@
         <module>cache</module>
         <module>cricuitbreaker</module>
         <module>dubbo-plus-all</module>
-        <module>akka</module>
         <module>netty4</module>
         <module>dubbo-generator</module>
-        <module>restful</module>
+        <module>cat-monitor</module>
     </modules>
     <build>
         <plugins>

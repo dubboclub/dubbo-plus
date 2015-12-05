@@ -3,35 +3,24 @@ package net.dubboclub.cricuitbreaker.exception;
 /**
  * Created by bieber on 2015/6/3.
  */
-public class CircuitBreakerException extends Exception {
+public class CircuitBreakerException extends RuntimeException {
     
-    private String code;
-    
-    private String message;
-    
-    public CircuitBreakerException(String code, String message){
-        this.code=code;
-        this.message = message;
-    }
-    
+   private String message;
 
-    protected CircuitBreakerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+
+    public CircuitBreakerException(String interfaceName, String methodName) {
+        StringBuilder message = new StringBuilder();
+        message.append(interfaceName).append(".").append(methodName).append("进入默认服务降级方案.");
+        this.message = message.toString();
     }
 
-    public CircuitBreakerException() {
-        super();
-    }
 
     public CircuitBreakerException(String message) {
         super(message);
     }
 
-    public CircuitBreakerException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public CircuitBreakerException(Throwable cause) {
-        super(cause);
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

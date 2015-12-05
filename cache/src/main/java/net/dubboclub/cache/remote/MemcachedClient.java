@@ -27,7 +27,7 @@ public class MemcachedClient extends RemoteClient{
     private static final String MEMCACHED_CONNECT="cache.memcached.connect";
     
     static {
-        String configConnect= "192.168.1.6:11211";//CacheConfig.getProperty(MEMCACHED_CONNECT);
+        String configConnect=  CacheConfig.getProperty(MEMCACHED_CONNECT);
         String[] connects = Constants.COMMA_SPLIT_PATTERN.split(configConnect);
         StringBuffer connectStr = new StringBuffer();
         if(connects.length>0){
