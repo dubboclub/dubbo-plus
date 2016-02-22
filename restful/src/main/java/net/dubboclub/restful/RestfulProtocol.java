@@ -9,6 +9,7 @@ import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
 import com.alibaba.dubbo.rpc.support.ProtocolUtils;
 import net.dubboclub.restful.export.RestfulHandler;
+import net.dubboclub.restful.export.mapping.ServiceMappingContainer;
 import net.dubboclub.restful.ref.RestfulInvoker;
 
 import java.util.HashMap;
@@ -23,24 +24,25 @@ public class RestfulProtocol extends AbstractProxyProtocol{
     
     private static final Map<String,HttpServer> SERVER_MAPPER = new HashMap<String, HttpServer>();
 
+    private static final ServiceMappingContainer SERVICE_MAPPING_CONTAINER = new ServiceMappingContainer();
+
     private HttpBinder httpBinder;
 
     private ProxyFactory proxyFactory ;
 
     @Override
-    protected <T> Runnable doExport(T impl, Class<T> type, URL url) throws RpcException {
+    protected <T> Runnable doExport(T impl, Class<T> type, final URL url) throws RpcException {
         String addr = url.getIp() + ":" + url.getPort();
         HttpServer server = SERVER_MAPPER.get(addr);
         if (server == null) {
-            server = httpBinder.bind(url, new RestfulHandler());
+            server = httpBinder.bind(url, new RestfulHandler(SERVICE_MAPPING_CONTAINER));
             SERVER_MAPPER.put(addr, server);
         }
-        String serviceKey = ProtocolUtils.serviceKey(url);
-        Invoker invoker = proxyFactory.getInvoker(impl,type,url);
+        SERVICE_MAPPING_CONTAINER.registerService(url,type,impl);
         return new Runnable() {
             @Override
             public void run() {
-
+                SERVICE_MAPPING_CONTAINER.unregisterService(url);
             }
         };
     }
