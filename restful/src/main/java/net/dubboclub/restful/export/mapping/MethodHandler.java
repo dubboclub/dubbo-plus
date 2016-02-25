@@ -39,8 +39,14 @@ public class MethodHandler {
         return argTypes;
     }
 
-    public boolean support(String methodName){
-        if(this.methodName.equals(methodName)){
+    public boolean support(RequestEntity requestEntity){
+        if(this.methodName.equals(requestEntity.getMethod())){
+            //参数长度比较
+            if(this.argTypes.length>0){
+                if(requestEntity.getArgs()==null||this.argTypes.length!=requestEntity.getArgs().length){
+                    return false;
+                }
+            }
             return true;
         }
         return false;

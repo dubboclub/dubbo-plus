@@ -1,6 +1,12 @@
 package net.dubboclub.restful.export.mapping;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @date: 2016/2/22.
@@ -13,14 +19,55 @@ import java.io.Serializable;
  */
 public class RequestEntity implements Serializable {
 
+
+    private final  static Pattern argPattern = Pattern.compile("^(arg[1-9]{1}[0-9]{0,})$");
+    private final  static Pattern argIndexPattern = Pattern.compile("[1-9]{1}[0-9]{0,}");
+
     private String group;
 
     private String version;
 
-    private String arg;
+    private String[] args;
 
     private String method;
 
+    public RequestEntity(){
+
+    }
+
+    public RequestEntity(JSONObject jsonObject){
+         if(jsonObject!=null){
+             this.setGroup(jsonObject.getString("group"));
+             this.setVersion(jsonObject.getString("version"));
+             this.setMethod(jsonObject.getString("method"));
+             Set<String> keys = jsonObject.keySet();
+             for(String key:keys){
+                 Matcher matcher = argPattern.matcher(key);
+                 if(matcher.matches()){
+                     matcher = argIndexPattern.matcher(key);
+                     matcher.find();
+                     int index = Integer.parseInt(matcher.group());
+                     setArg(index,jsonObject.getString(key));
+                 }
+             }
+         }
+    }
+
+    /**
+     * 注意此时的index是从1开始，而非0
+     * @param index
+     * @param arg
+     */
+    public void setArg(int index,String arg){
+        if(args==null){
+            args = new String[index];
+        }else if(args.length<index){
+            String[] newArgs  = new String[index];
+            System.arraycopy(args,0,newArgs,0,args.length);
+            args = newArgs;
+        }
+        args[index-1]=arg;
+    }
 
     public String getGroup() {
         return group;
@@ -38,14 +85,9 @@ public class RequestEntity implements Serializable {
         this.version = version;
     }
 
-    public String getArg() {
-        return arg;
+    public String[] getArgs() {
+        return args;
     }
-
-    public void setArg(String arg) {
-        this.arg = arg;
-    }
-
 
     public String getMethod() {
         return method;
@@ -60,7 +102,7 @@ public class RequestEntity implements Serializable {
         return "RequestEntity{" +
                 "group='" + group + '\'' +
                 ", version='" + version + '\'' +
-                ", arg='" + arg + '\'' +
+                ", args=" + Arrays.toString(args) +
                 ", method='" + method + '\'' +
                 '}';
     }

@@ -10,13 +10,53 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>restful</artifactId>
+
+    <properties>
+        <zkclient.version>0.3</zkclient.version>
+        <zookeeper.version>3.3.3</zookeeper.version>
+        <servlet.version>3.0.1</servlet.version>
+        <jetty_version>6.1.26</jetty_version>
+        <httpclient_version>4.5.1</httpclient_version>
+    </properties>
     
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
+            <version>${servlet.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient_version}</version>
+        </dependency>
+
+        <!-- zookeeper -->
+
+        <dependency>
+            <groupId>com.101tec</groupId>
+            <artifactId>zkclient</artifactId>
+            <version>${zkclient.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>${zookeeper.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>${jetty_version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

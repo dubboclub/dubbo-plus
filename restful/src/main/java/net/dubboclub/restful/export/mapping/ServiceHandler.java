@@ -1,7 +1,5 @@
 package net.dubboclub.restful.export.mapping;
 
-import com.alibaba.fastjson.JSON;
-import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ public class ServiceHandler<T extends Object> {
 
     private void initHandler(){
         Class type = this.serviceType;
-        while(type!=Object.class){
+        while(type!=null&&type!=Object.class){
             Method[] methods = type.getDeclaredMethods();
             for(Method method:methods){
                 MethodHandler methodHandler = new MethodHandler(method.getName(),method,method.getParameterTypes(),this.impl);
@@ -56,7 +54,7 @@ public class ServiceHandler<T extends Object> {
 
     public MethodHandler mapping(RequestEntity requestEntity){
         for(MethodHandler methodHandler:methodHandlerList){
-            if(methodHandler.support(requestEntity.getMethod())){
+            if(methodHandler.support(requestEntity)){
                 return methodHandler;
             }
         }

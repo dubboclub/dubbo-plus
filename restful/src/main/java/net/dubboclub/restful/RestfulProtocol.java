@@ -3,14 +3,12 @@ package net.dubboclub.restful;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.remoting.http.HttpBinder;
 import com.alibaba.dubbo.remoting.http.HttpServer;
-import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.ProxyFactory;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
-import com.alibaba.dubbo.rpc.support.ProtocolUtils;
+import net.dubboclub.restful.client.RestfulInvokerProxyFactoryBean;
 import net.dubboclub.restful.export.RestfulHandler;
 import net.dubboclub.restful.export.mapping.ServiceMappingContainer;
-import net.dubboclub.restful.ref.RestfulInvoker;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +26,6 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     private HttpBinder httpBinder;
 
-    private ProxyFactory proxyFactory ;
 
     @Override
     protected <T> Runnable doExport(T impl, Class<T> type, final URL url) throws RpcException {
@@ -50,7 +47,7 @@ public class RestfulProtocol extends AbstractProxyProtocol{
     @Override
     protected synchronized  <T> T doRefer(Class<T> type, URL url) throws RpcException {
         if(!REFER_MAPPER.containsKey(type)){
-            REFER_MAPPER.put(type,proxyFactory.getProxy(new RestfulInvoker<T>(url,type)));
+            REFER_MAPPER.put(type,new RestfulInvokerProxyFactoryBean(url.setProtocol("http"),type).getProxy());
         }
         return (T) REFER_MAPPER.get(type);
     }
@@ -62,10 +59,5 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     public void setHttpBinder(HttpBinder httpBinder) {
         this.httpBinder = httpBinder;
-    }
-
-    @Override
-    public void setProxyFactory(ProxyFactory proxyFactory) {
-        this.proxyFactory = proxyFactory;
     }
 }
