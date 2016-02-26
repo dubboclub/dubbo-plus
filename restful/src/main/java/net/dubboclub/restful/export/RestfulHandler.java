@@ -10,14 +10,13 @@ import net.dubboclub.restful.exception.NotFoundServiceException;
 import net.dubboclub.restful.export.mapping.*;
 import net.dubboclub.restful.export.mapping.ServiceHandler;
 import net.dubboclub.restful.util.ClassUtils;
+import net.dubboclub.restful.util.RestfulConstants;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.CharsetDecoder;
 import java.util.Enumeration;
 
 /**
@@ -27,14 +26,13 @@ public class RestfulHandler implements HttpHandler {
 
     private ServiceMappingContainer serviceMappingContainer;
 
-    private static final String ALL = "all";
-
     private Logger logger = LoggerFactory.getLogger(RestfulHandler.class);
 
     private String contextPath = "/";
 
     public RestfulHandler(ServiceMappingContainer serviceMappingContainer) {
         this.serviceMappingContainer = serviceMappingContainer;
+
     }
 
     /**
@@ -69,10 +67,10 @@ public class RestfulHandler implements HttpHandler {
         if(fragments.length>=2){
             entity.setMethod(fragments[1]);
         }
-        if(fragments.length>=3&&!fragments[2].equals(ALL)){
+        if(fragments.length>=3&&!fragments[2].equals(RestfulConstants.ALL)){
             entity.setVersion(fragments[2]);
         }
-        if(fragments.length>=4&&!fragments[3].equals(ALL)){
+        if(fragments.length>=4&&!fragments[3].equals(RestfulConstants.ALL)){
             entity.setGroup(fragments[3]);
         }
         readAttachment(request);
@@ -101,8 +99,8 @@ public class RestfulHandler implements HttpHandler {
         Enumeration<String> headerNames = request.getHeaderNames();
         while(headerNames.hasMoreElements()){
             String name = headerNames.nextElement();
-            if(name.startsWith("protocol_")){
-                RpcContext.getContext().setAttachment(name.replaceFirst("protocol_",""),request.getHeader(name));
+            if(name.startsWith(RestfulConstants.RESTFUL_HEADER_KEY_PREFIX)){
+                RpcContext.getContext().setAttachment(name.replaceFirst(RestfulConstants.RESTFUL_HEADER_KEY_PREFIX,""),request.getHeader(name));
             }
         }
     }

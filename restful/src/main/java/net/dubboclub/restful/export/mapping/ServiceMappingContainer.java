@@ -57,6 +57,10 @@ public class ServiceMappingContainer {
                         if (serviceHandler.getGroup().equals(entity.getGroup())) {
                             return serviceHandler;
                         }
+                    }else if(StringUtils.isEmpty(serviceHandler.getVersion())
+                            && StringUtils.isEmpty(serviceHandler.getGroup())&&StringUtils.isEmpty(entity.getVersion())
+                            && StringUtils.isEmpty(entity.getGroup())){
+                        return serviceHandler;
                     }
                 }
 

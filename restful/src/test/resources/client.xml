@@ -4,6 +4,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
-    <dubbo:reference interface="net.dubboclub.restful.api.FirstRestfulService" version="1.0.1" id="firstRestful"></dubbo:reference>
+    <dubbo:reference interface="net.dubboclub.restful.api.FirstRestfulService" id="firstRestful"></dubbo:reference>
 
 </beans>

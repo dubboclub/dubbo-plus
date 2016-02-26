@@ -3,10 +3,10 @@ package net.dubboclub.restful;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.remoting.http.HttpBinder;
 import com.alibaba.dubbo.remoting.http.HttpServer;
-import com.alibaba.dubbo.rpc.ProxyFactory;
+import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
-import net.dubboclub.restful.client.RestfulInvokerProxyFactoryBean;
+import net.dubboclub.restful.client.RestfulInvoker;
 import net.dubboclub.restful.export.RestfulHandler;
 import net.dubboclub.restful.export.mapping.ServiceMappingContainer;
 
@@ -46,10 +46,16 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     @Override
     protected synchronized  <T> T doRefer(Class<T> type, URL url) throws RpcException {
+        //do nothing
+        return null;
+    }
+
+    @Override
+    public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
         if(!REFER_MAPPER.containsKey(type)){
-            REFER_MAPPER.put(type,new RestfulInvokerProxyFactoryBean(url.setProtocol("http"),type).getProxy());
+            REFER_MAPPER.put(type,new RestfulInvoker(url.setProtocol("http"),type));
         }
-        return (T) REFER_MAPPER.get(type);
+        return (Invoker<T>) REFER_MAPPER.get(type);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package net.dubboclub.restful.client;
 
 import com.alibaba.dubbo.rpc.RpcException;
+import net.dubboclub.restful.util.RestfulConstants;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -37,7 +38,7 @@ public class HttpInvoker {
             Header[] headers = new Header[headerMap.size()];
             int index=0;
             for(Map.Entry<String,String> entry:headerMap.entrySet()){
-                Header header = new BasicHeader("protocol_"+entry.getKey(),entry.getValue());
+                Header header = new BasicHeader(RestfulConstants.RESTFUL_HEADER_KEY_PREFIX+entry.getKey(),entry.getValue());
                 headers[index]=header;
                 index++;
             }
