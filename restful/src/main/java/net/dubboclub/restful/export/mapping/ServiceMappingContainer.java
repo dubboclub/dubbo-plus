@@ -41,7 +41,8 @@ public class ServiceMappingContainer {
         //路径并没有匹配，那么说明这个服务存在多个版本实现，前端请求的路径是直接接口请求，所以需要判断接口信息以及版本和分组
         Collection<ServiceHandler> serviceHandlerCollection = SERVICE_MAPPING.values();
         for (ServiceHandler serviceHandler : serviceHandlerCollection) {
-            if (serviceHandler.getServiceType().getName().equals(path)) {//请求的path是接口全名
+            //它的请求路径可能是类全名或者类名，这样都满足匹配要求，满足则进行版本和分组的校验
+            if (serviceHandler.getServiceType().getName().equals(path)||serviceHandler.getServiceType().getSimpleName().equals(path)) {//请求的path是接口全名
                 if (!StringUtils.isEmpty(serviceHandler.getVersion())
                         && !StringUtils.isEmpty(serviceHandler.getGroup())) {
                     if (serviceHandler.getVersion().equals(entity.getVersion())
