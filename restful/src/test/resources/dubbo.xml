@@ -6,23 +6,23 @@
 
     <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl" id="firstRestfulService"></bean>
     <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl1" id="firstRestfulServiceImpl1"></bean>
-    <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl2" id="firstRestfulServiceImpl2"></bean>
-    <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl3" id="firstRestfulServiceImpl3"></bean>
+   <!-- <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl2" id="firstRestfulServiceImpl2"></bean>
+    <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl3" id="firstRestfulServiceImpl3"></bean>-->
 
     <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulService">
 
     </dubbo:service>
 
-    <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulServiceImpl1" version="1.0.1">
+    <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService1" ref="firstRestfulServiceImpl1" version="1.0.1">
 
     </dubbo:service>
 
-    <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulServiceImpl2" group="1.0.1">
+   <!-- <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulServiceImpl2" group="1.0.1">
 
     </dubbo:service>
     <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulServiceImpl3" version="1.0.1" group="1.0.1">
 
-    </dubbo:service>
+    </dubbo:service>-->
 
     <dubbo:protocol name="restful" />
 
