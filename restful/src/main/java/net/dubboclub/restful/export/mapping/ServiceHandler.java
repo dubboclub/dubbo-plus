@@ -1,6 +1,8 @@
 package net.dubboclub.restful.export.mapping;
 
 
+import com.alibaba.dubbo.common.Constants;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +28,25 @@ public class ServiceHandler<T extends Object> {
 
     private List<MethodHandler> methodHandlerList;
 
-    public ServiceHandler(String group, String version, Class<T> serviceType, T impl) {
+    private String path;
+
+    public ServiceHandler(String group, String version, Class<T> serviceType,String path, T impl) {
         if(serviceType==null){
             throw new IllegalArgumentException("[serviceType] must not be null");
         }
-        this.group = group;
-        this.version = version;
+        this.group = Constants.ANY_VALUE.equals(group)?null:group;
+        this.version = Constants.ANY_VALUE.equals(version)?null:version;
         this.serviceType = serviceType;
         this.impl = impl;
         methodHandlerList =new ArrayList<MethodHandler>();
+        this.path=path;
         initHandler();
     }
 
+
+    public String getPath() {
+        return path;
+    }
 
     private void initHandler(){
         Class type = this.serviceType;
@@ -51,6 +60,10 @@ public class ServiceHandler<T extends Object> {
         }
     }
 
+
+    public List<MethodHandler> getMethodHandlerList() {
+        return methodHandlerList;
+    }
 
     public MethodHandler mapping(RequestEntity requestEntity){
         for(MethodHandler methodHandler:methodHandlerList){

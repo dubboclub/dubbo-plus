@@ -35,6 +35,10 @@ public class MethodHandler {
         return  method.invoke(target,args);
     }
 
+    public String getMethodName() {
+        return methodName;
+    }
+
     public Class<?>[] getArgTypes() {
         return argTypes;
     }

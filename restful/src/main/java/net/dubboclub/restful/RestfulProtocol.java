@@ -1,6 +1,9 @@
 package net.dubboclub.restful;
 
+import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.common.extension.ExtensionFactory;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.remoting.http.HttpBinder;
 import com.alibaba.dubbo.remoting.http.HttpServer;
 import com.alibaba.dubbo.rpc.Invoker;
@@ -9,6 +12,7 @@ import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
 import net.dubboclub.restful.client.RestfulInvoker;
 import net.dubboclub.restful.export.RestfulHandler;
 import net.dubboclub.restful.export.mapping.ServiceMappingContainer;
+import net.dubboclub.restful.util.RestfulConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +28,8 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     private static final ServiceMappingContainer SERVICE_MAPPING_CONTAINER = new ServiceMappingContainer();
 
+    private static final ExtensionFactory springExtensionFactory = ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension();
+
     private HttpBinder httpBinder;
 
 
@@ -32,7 +38,7 @@ public class RestfulProtocol extends AbstractProxyProtocol{
         String addr = url.getIp() + ":" + url.getPort();
         HttpServer server = SERVER_MAPPER.get(addr);
         if (server == null) {
-            server = httpBinder.bind(url, new RestfulHandler(SERVICE_MAPPING_CONTAINER));
+            server = httpBinder.bind(url, new RestfulHandler(SERVICE_MAPPING_CONTAINER,url.getParameter(RestfulConstants.CONTEXT_PATH,"/")));
             SERVER_MAPPER.put(addr, server);
         }
         SERVICE_MAPPING_CONTAINER.registerService(url,type,impl);
@@ -46,8 +52,7 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     @Override
     protected synchronized  <T> T doRefer(Class<T> type, URL url) throws RpcException {
-        //do nothing
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

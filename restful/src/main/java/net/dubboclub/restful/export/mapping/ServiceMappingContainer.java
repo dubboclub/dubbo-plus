@@ -3,8 +3,12 @@ package net.dubboclub.restful.export.mapping;
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import net.dubboclub.restful.exception.NotFoundServiceException;
+import net.dubboclub.restful.util.RestfulConstants;
+import net.dubboclub.restful.util.ServicesUtil;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +29,15 @@ public class ServiceMappingContainer {
     private static ConcurrentHashMap<String, ServiceHandler> SERVICE_MAPPING = new ConcurrentHashMap<String, ServiceHandler>();
 
     public void registerService(URL url, Class serviceType, Object impl) {
-        SERVICE_MAPPING.putIfAbsent(url.getPath(),
+        String contextPath = url.getParameter(RestfulConstants.CONTEXT_PATH,"/");
+        String path  =StringUtils.replaceOnce(url.getPath(),contextPath,"");
+        if(StringUtils.startsWith(path,"/")){
+            path = StringUtils.replaceOnce(path,"/","");
+        }
+        SERVICE_MAPPING.putIfAbsent(path,
                 new ServiceHandler(url.getParameter(Constants.GROUP_KEY),
                         url.getParameter(Constants.VERSION_KEY),
-                        serviceType, impl));
+                        serviceType,path,impl));
     }
 
     public ServiceHandler mappingService(String path, RequestEntity entity) {
@@ -41,7 +50,6 @@ public class ServiceMappingContainer {
         //路径并没有匹配，那么说明这个服务存在多个版本实现，前端请求的路径是直接接口请求，所以需要判断接口信息以及版本和分组
         Collection<ServiceHandler> serviceHandlerCollection = SERVICE_MAPPING.values();
         for (ServiceHandler serviceHandler : serviceHandlerCollection) {
-            //它的请求路径可能是类全名或者类名，这样都满足匹配要求，满足则进行版本和分组的校验
             if (serviceHandler.getServiceType().getName().equals(path)||serviceHandler.getServiceType().getSimpleName().equals(path)) {//请求的path是接口全名
                 if (!StringUtils.isEmpty(serviceHandler.getVersion())
                         && !StringUtils.isEmpty(serviceHandler.getGroup())) {
@@ -72,6 +80,11 @@ public class ServiceMappingContainer {
 
     public void unregisterService(URL url) {
         SERVICE_MAPPING.remove(url.getAbsolutePath());
+    }
+
+
+    public void writeServiceHtml(OutputStream outputStream) throws IOException {
+        ServicesUtil.writeServicesHtml(outputStream,SERVICE_MAPPING);
     }
 
 }

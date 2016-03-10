@@ -30,9 +30,11 @@ public class RestfulHandler implements HttpHandler {
 
     private String contextPath = "/";
 
-    public RestfulHandler(ServiceMappingContainer serviceMappingContainer) {
-        this.serviceMappingContainer = serviceMappingContainer;
+    private static final String SERVICES_PATH="services";
 
+    public RestfulHandler(ServiceMappingContainer serviceMappingContainer,String contextPath) {
+        this.serviceMappingContainer = serviceMappingContainer;
+        this.contextPath = contextPath;
     }
 
     /**
@@ -46,6 +48,10 @@ public class RestfulHandler implements HttpHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String requestUri = request.getRequestURI();
+        if(!StringUtils.contains(requestUri,contextPath)){
+            response.sendError(404);
+            return;
+        }
         requestUri = requestUri.substring(requestUri.indexOf(contextPath)+contextPath.length());
         String[] fragments = StringUtils.split(requestUri,"/");
         if(fragments.length==0){
@@ -53,6 +59,11 @@ public class RestfulHandler implements HttpHandler {
             response.sendError(404);
         }
         String path = fragments[0];
+        //返回所有注册的服务列表,帮助查看服务信息
+        if(path.equalsIgnoreCase(SERVICES_PATH)){
+            serviceMappingContainer.writeServiceHtml(response.getOutputStream());
+            return;
+        }
         RequestEntity entity = null;
         byte[] requestContent = copyBytesFromRequest(request);
         try{
@@ -95,6 +106,8 @@ public class RestfulHandler implements HttpHandler {
         }
     }
 
+
+
     private void readAttachment(HttpServletRequest request){
         Enumeration<String> headerNames = request.getHeaderNames();
         while(headerNames.hasMoreElements()){
@@ -109,6 +122,7 @@ public class RestfulHandler implements HttpHandler {
     private void rendingResponse(HttpServletResponse response,Object ret) throws IOException {
         if(ret!=null){
             try {
+                response.setContentType("application/json");
                 response.getOutputStream().write(JSON.toJSONBytes(ret));
             } catch (IOException e) {
                 logger.error("Fail to rending response",e);

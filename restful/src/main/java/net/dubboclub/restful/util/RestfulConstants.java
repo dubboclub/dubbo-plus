@@ -14,4 +14,6 @@ public class RestfulConstants {
     public static final String ALL="all";
 
     public static final String RESTFUL_HEADER_KEY_PREFIX ="restful_protocol_";
+
+    public static final String CONTEXT_PATH="contextpath";
 }

@@ -4,11 +4,9 @@ import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.*;
 import com.alibaba.fastjson.JSON;
+import net.dubboclub.restful.util.ClassUtils;
 import net.dubboclub.restful.util.RestfulConstants;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,11 +63,14 @@ public class RestfulInvoker implements Invoker {
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
         Object[] args = invocation.getArguments();
-        Map<String,String> requestMap = new HashMap<String, String>();
+        Map<String,Object> requestMap = new HashMap<String, Object>();
         RpcResult rpcResult = new RpcResult();
         if(args!=null){
             for(int i=0;i<args.length;i++){
-                requestMap.put("arg"+(i+1), JSON.toJSONString(args[i]));
+                if(args[i]==null){
+                    continue;
+                }
+                requestMap.put("arg"+(i+1), args[i]);
             }
         }
         try{
