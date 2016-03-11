@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl" id="firstRestfulService"></bean>
+    <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl1" id="firstRestfulServiceImpl1"></bean>
+   <!-- <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl2" id="firstRestfulServiceImpl2"></bean>
+    <bean class="net.dubboclub.restful.server.FirstRestfulServiceImpl3" id="firstRestfulServiceImpl3"></bean>-->
+
+    <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulService">
+
+    </dubbo:service>
+
+    <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService1" ref="firstRestfulServiceImpl1" version="1.0.1">
+
+    </dubbo:service>
+
+   <!-- <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulServiceImpl2" group="1.0.1">
+
+    </dubbo:service>
+    <dubbo:service interface="net.dubboclub.restful.api.FirstRestfulService" ref="firstRestfulServiceImpl3" version="1.0.1" group="1.0.1">
+
+    </dubbo:service>-->
+
+    <dubbo:protocol name="restful"  contextpath="hello"/>
+
+</beans>
