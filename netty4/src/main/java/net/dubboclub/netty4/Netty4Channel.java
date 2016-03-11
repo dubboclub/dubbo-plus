@@ -86,7 +86,9 @@ public class Netty4Channel extends AbstractChannel {
             com.alibaba.dubbo.remoting.buffer.ChannelBuffer buffer =
                     com.alibaba.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(1024);
             codec.encode(this, buffer, message);
-            ChannelFuture future = originChannel.writeAndFlush(buffer);
+            byte[] bytes = new byte[buffer.readableBytes()];
+            buffer.readBytes(bytes);
+            ChannelFuture future = originChannel.writeAndFlush(bytes);
             if (sent) {
                 timeout = getUrl().getPositiveParameter(Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
                 success = future.await(timeout);

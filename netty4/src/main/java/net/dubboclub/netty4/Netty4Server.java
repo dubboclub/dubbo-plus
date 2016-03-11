@@ -45,9 +45,10 @@ public class Netty4Server extends AbstractServer {
 
     @Override
     protected void doOpen() throws Throwable {
+        System.out.println("used netty4");
         bootstrap = new ServerBootstrap();
         NioEventLoopGroup  bossGroup = new NioEventLoopGroup(1,new NamedThreadFactory("NettyServerBoss", true));
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(getUrl().getPositiveParameter(Constants.IO_THREADS_KEY, Constants.DEFAULT_IO_THREADS),new NamedThreadFactory("NettyServerBoss", true));
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(getUrl().getPositiveParameter(Constants.IO_THREADS_KEY, Constants.DEFAULT_IO_THREADS),new NamedThreadFactory("NettyServerWorker", true));
         final Netty4Handler nettyHandler = new Netty4Handler(getUrl(), this);
         channels = nettyHandler.getChannels();
         bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
