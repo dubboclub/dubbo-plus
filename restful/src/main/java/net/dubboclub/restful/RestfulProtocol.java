@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.extension.ExtensionFactory;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
+import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.remoting.http.HttpBinder;
 import com.alibaba.dubbo.remoting.http.HttpServer;
 import com.alibaba.dubbo.rpc.Invoker;
@@ -35,10 +36,11 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     @Override
     protected <T> Runnable doExport(T impl, Class<T> type, final URL url) throws RpcException {
+        String contextPath = ConfigUtils.getProperty("dubbo.protocol.restful.contextpath","/");
         String addr = url.getIp() + ":" + url.getPort();
         HttpServer server = SERVER_MAPPER.get(addr);
         if (server == null) {
-            server = httpBinder.bind(url, new RestfulHandler(SERVICE_MAPPING_CONTAINER,url.getParameter(RestfulConstants.CONTEXT_PATH,"/")));
+            server = httpBinder.bind(url, new RestfulHandler(SERVICE_MAPPING_CONTAINER,contextPath));
             SERVER_MAPPER.put(addr, server);
         }
         SERVICE_MAPPING_CONTAINER.registerService(url,type,impl);
