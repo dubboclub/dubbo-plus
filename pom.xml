@@ -75,6 +75,8 @@
         <module>dubbo-generator</module>
         <module>restful</module>
         <module>cat-monitor</module>
+        <module>tracing-api</module>
+        <module>tracing-client</module>
     </modules>
     <build>
         <plugins>
