@@ -1,6 +1,8 @@
 package net.dubboclub.tracing.client;
 
 import com.alibaba.dubbo.common.Constants;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
+import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.rpc.RpcContext;
 import net.dubboclub.tracing.api.Annotation;
@@ -9,29 +11,29 @@ import net.dubboclub.tracing.api.Endpoint;
 import net.dubboclub.tracing.api.Span;
 import net.dubboclub.tracing.client.util.GUId;
 import net.dubboclub.tracing.client.util.Sampler;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Created by Zetas on 2016/7/8.
  */
-public class Tracer implements InitializingBean {
+public class Tracer {
 
-    private SyncTransfer syncTransfer;
+    private SyncTransfer syncTransfer = ExtensionLoader.getExtensionLoader(SyncTransfer.class)
+            .getExtension(ConfigUtils.getProperty(DstConstants.SYNC_TRANSFER_TYPE,DstConstants.DEFAULT_SYNC_TRANSFER));
 
-    public void setSyncTransfer(SyncTransfer syncTransfer) {
-        this.syncTransfer = syncTransfer;
-    }
-
-    public void afterPropertiesSet() throws Exception {
+    public void init(){
         syncTransfer.start();
     }
 
-    public void beforeInvoke() {
-        if (RpcContext.getContext().isConsumerSide()) {
-            createConsumerSideTraceId();
-            createConsumerSideSpan();
-            addClientSendAnnotation();
-        } else if (RpcContext.getContext().isProviderSide()) {
+
+
+    public void beforeInvoke(boolean isConsumerSide) {
+        if (isConsumerSide) {
+            String traceId = createConsumerSideTraceId();
+            if(traceId!=null){
+                createConsumerSideSpan();
+                addClientSendAnnotation();
+            }
+        } else{
             createProvideSideTraceId();
             createProviderSideSpan();
             addServerReceiveAnnotation();
@@ -40,17 +42,18 @@ public class Tracer implements InitializingBean {
         setAttachment();
     }
 
-    public void afterInvoke() {
-        if (RpcContext.getContext().isConsumerSide()) {
+    public void afterInvoke(boolean isConsumerSide) {
+        if (isConsumerSide) {
             addClientReceiveAnnotation();
-        } else if (RpcContext.getContext().isProviderSide()) {
+        } else{
             addServerSendAnnotation();
         }
         send();
     }
 
     private void send() {
-        Span span = ContextHolder.getSpan();
+        //弹出栈顶span
+        Span span = ContextHolder.popSpan();
         if (span != null) {
             syncTransfer.syncSend(span);
         }
@@ -70,7 +73,7 @@ public class Tracer implements InitializingBean {
     }
 
     private Span createConsumerSideSpan() {
-        if (Sampler.isSample(getServiceName())) {
+        if(ContextHolder.isSample()){
             Span span = new Span();
             span.setId(GUId.singleton().nextId());
             Span parentSpan = ContextHolder.getSpan();
@@ -82,7 +85,6 @@ public class Tracer implements InitializingBean {
             }
             span.setServiceName(getServiceName());
             span.setName(getMethodName());
-
             ContextHolder.setSpan(span);
         }
         return ContextHolder.getSpan();
@@ -94,8 +96,7 @@ public class Tracer implements InitializingBean {
         String spanId = rpcContext.getAttachment(DstConstants.DST_SPAN_ID);
         String parentSpanId = rpcContext.getAttachment(DstConstants.DST_PARENT_SPAN_ID);
         if (StringUtils.isNotEmpty(traceId)
-                && StringUtils.isNotEmpty(spanId)
-                && StringUtils.isNotEmpty(parentSpanId)) {
+                && StringUtils.isNotEmpty(spanId)) {//只需要判断traceId和spanid即可
             Span span = new Span();
             span.setId(spanId);
             span.setParentId(parentSpanId);
@@ -111,14 +112,22 @@ public class Tracer implements InitializingBean {
 
     private String createConsumerSideTraceId() {
         String traceId = ContextHolder.getTraceId();
-        if (StringUtils.isBlank(traceId)) {
-            ContextHolder.setTraceId(GUId.singleton().nextId());
+        if (StringUtils.isBlank(traceId)) {//启动一个新的链路
+            if(ContextHolder.isSample()&&Sampler.isSample(getServiceName())){
+                ContextHolder.setTraceId(GUId.singleton().nextId());
+            }else{
+                ContextHolder.setLocalSample(false);
+            }
         }
         return ContextHolder.getTraceId();
     }
 
     private String createProvideSideTraceId() {
         RpcContext rpcContext = RpcContext.getContext();
+        String isSample = rpcContext.getAttachment(DstConstants.DST_IS_SAMPLE);
+        if(StringUtils.isNotEmpty(isSample)){
+            ContextHolder.setLocalSample(Boolean.valueOf(isSample));
+        }
         String traceId = rpcContext.getAttachment(DstConstants.DST_TRACE_ID);
         if (StringUtils.isBlank(traceId)) {
             ContextHolder.setTraceId(GUId.singleton().nextId());
@@ -131,6 +140,7 @@ public class Tracer implements InitializingBean {
     private void setAttachment() {
         RpcContext rpcContext = RpcContext.getContext();
         String traceId = ContextHolder.getTraceId();
+        rpcContext.setAttachment(DstConstants.DST_IS_SAMPLE,ContextHolder.isSample()+"");
         if (traceId != null) {
             rpcContext.setAttachment(DstConstants.DST_TRACE_ID, traceId);
         }

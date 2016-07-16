@@ -2,9 +2,13 @@ package net.dubboclub.tracing.client.support;
 
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
+import com.alibaba.dubbo.common.utils.ConfigUtils;
+import com.alibaba.dubbo.config.ConsumerConfig;
+import com.alibaba.dubbo.config.ReferenceConfig;
 import net.dubboclub.tracing.api.Span;
 import net.dubboclub.tracing.api.TracingCollector;
 import net.dubboclub.tracing.client.Configuration;
+import net.dubboclub.tracing.client.DstConstants;
 import net.dubboclub.tracing.client.SyncTransfer;
 
 import java.util.ArrayList;
@@ -23,6 +27,8 @@ public class DefaultSyncTransfer implements SyncTransfer {
     private volatile BlockingQueue<Span> queue;
     private volatile TransferTask transferTask;
 
+    private volatile boolean inited=false;
+
     private class TransferTask extends Thread {
         private List<Span> cacheList;
         private int flushSizeInner;
@@ -35,12 +41,19 @@ public class DefaultSyncTransfer implements SyncTransfer {
 
         @Override
         public void run() {
+            if(!inited&&collector==null){
+                ReferenceConfig referenceConfig = new ReferenceConfig();
+                referenceConfig.setInterface(TracingCollector.class);
+                referenceConfig.setCheck(false);
+                collector = (TracingCollector) referenceConfig.get();
+            }
             while (!interrupted()) {
                 try {
                     Span first = queue.take();
                     cacheList.add(first);
                     queue.drainTo(cacheList, flushSizeInner);
                     collector.push(cacheList);
+                    cacheList.clear();
                 } catch (InterruptedException e) {
                     logger.error("Dst-span-transfer-task-thread occur an error", e);
                 }
@@ -48,16 +61,13 @@ public class DefaultSyncTransfer implements SyncTransfer {
         }
     }
 
-    public DefaultSyncTransfer(Configuration c) {
-        int flushSize = c.getFlushSize() == null ? 1024 : c.getFlushSize();
-        int queueSize = c.getQueueSize() == null ? 1024 : c.getQueueSize();
-        queue = new ArrayBlockingQueue<Span>(queueSize);
-        transferTask = new TransferTask(flushSize);
+
+
+    public DefaultSyncTransfer() {
+        queue = new ArrayBlockingQueue<Span>(Integer.parseInt(ConfigUtils.getProperty(DstConstants.FLUSH_SIZE_KEY,DstConstants.DEFAULT_FLUSH_SIZE)));
+        transferTask = new TransferTask(Integer.parseInt(ConfigUtils.getProperty(DstConstants.QUEUE_SIZE_KEY,DstConstants.DEFAULT_BUFFER_QUEUE_SIZE)));
     }
 
-    public void setCollector(TracingCollector collector) {
-        this.collector = collector;
-    }
 
     public void start() {
         transferTask.start();

@@ -4,70 +4,85 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import net.dubboclub.tracing.api.Span;
 
+import java.util.EmptyStackException;
+import java.util.Stack;
+
 /**
  * Created by Zetas on 2016/7/8.
  */
 public class ContextHolder {
 
+
+    private static ThreadLocal<Stack<Span>> localSpan = new ThreadLocal<Stack<Span>>(){
+        @Override
+        protected Stack<Span> initialValue() {
+            return new Stack<Span>();
+        }
+    };
+
     private static ThreadLocal<String> localTraceId = new ThreadLocal<String>();
 
-    private static ThreadLocal<Span> localSpan = new ThreadLocal<Span>();
+    private static ThreadLocal<Boolean> localSample = new ThreadLocal<Boolean>(){
+        @Override
+        protected Boolean initialValue() {
+            return true;
+        }
+    };
 
-    private static ThreadLocal<Invoker<?>> localInvoker = new ThreadLocal<Invoker<?>>();
+    static String getTraceId(){
+       return localTraceId.get();
+    }
 
-    private static ThreadLocal<Invocation> localInvocation = new ThreadLocal<Invocation>();
-
-    static void setTraceId(String traceId) {
+    static void setTraceId(String traceId){
         localTraceId.set(traceId);
     }
-    public static String getTraceId() {
-        return localTraceId.get();
-    }
-    static void removeTraceId() {
+
+    static void removeTraceId(){
         localTraceId.remove();
     }
 
+    static boolean isSample(){
+        return localSample.get();
+    }
+
+    static void setLocalSample(boolean isSample){
+        localSample.set(isSample);
+    }
+
+    static void removeSample(){
+        localSample.remove();
+    }
+
     static void setSpan(Span span) {
-        ContextHolder.localSpan.set(span);
+        ContextHolder.localSpan.get().push(span);
     }
 
     static Span getSpan() {
-        return localSpan.get();
+        try {
+            return localSpan.get().peek();
+        }catch (EmptyStackException e){
+            return null;
+        }
     }
+
+    static Span popSpan(){
+        try {
+            return localSpan.get().pop();
+        }catch (EmptyStackException e){
+            return null;
+        }
+    }
+
 
     static void removeSpan() {
         localSpan.remove();
     }
-
-    public static void setInvoker(Invoker<?> invoker) {
-        ContextHolder.localInvoker.set(invoker);
-    }
-
-    static Invoker<?> getInvoker() {
-        return localInvoker.get();
-    }
-
-    static void removeInvoker() {
-        localInvoker.remove();
-    }
-
-    public static void setInvocation(Invocation invocation) {
-        ContextHolder.localInvocation.set(invocation);
-    }
-
-    static Invocation getInvocation() {
-        return localInvocation.get();
-    }
-
-    static void removeInvocation() {
-        localInvocation.remove();
-    }
-
     public static void removeAll() {
-        removeTraceId();
-        removeSpan();
-        removeInvoker();
-        removeInvocation();
+        if(localSpan.get().size()<=0){//span堆栈为空的时候才能清除
+            removeSpan();
+            removeTraceId();
+            removeSample();
+        }
     }
 
 
