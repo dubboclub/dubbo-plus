@@ -24,6 +24,6 @@
 
     </dubbo:service>-->
 
-    <dubbo:protocol name="restful"  contextpath="hello"/>
+    <dubbo:protocol name="restful" />
 
 </beans>

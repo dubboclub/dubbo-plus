@@ -29,7 +29,7 @@ public class ClientInvoker {
     @Test
     public void invokeSayHello(){
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://localhost:8080/"+ FirstRestfulService.class.getSimpleName()+"/sayHello/1.0.1");
+        HttpPost httpPost = new HttpPost("http://localhost:8080/net.dubboclub.restful.api.FirstRestfulService1/sayHello/1.0.1/all");
         Map<String,String> requestEntity = new HashMap<String,String>();
         requestEntity.put("arg1","Bieber");
         HttpEntity httpEntity = new ByteArrayEntity(JSON.toJSONBytes(requestEntity));
