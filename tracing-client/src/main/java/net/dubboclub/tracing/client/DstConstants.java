@@ -11,14 +11,20 @@ public class DstConstants {
     public static final String DST_IS_SAMPLE ="~dstIsSampler";
 
     //properties配置同步trace类型的配置key
-    public static final String SYNC_TRANSFER_TYPE="trace_sync_transfer_type";
+    public static final String SYNC_TRANSFER_TYPE="trace.sync.transfer.type";
 
     //默认的同步方式
     public static final String DEFAULT_SYNC_TRANSFER="default";
 
-    public static final String FLUSH_SIZE_KEY="trace_flush_size";
+    public static final String DEFAULT_COLLECTOR_TYPE="default";
 
-    public static final String QUEUE_SIZE_KEY="trace_queue_buffer_size";
+    public static final String TRACING_COLLECTOR="tracing.collector.type";
+
+    public static final String TRACING_REGISTRY_ADDRESS="tracing.registry.address";
+
+    public static final String FLUSH_SIZE_KEY="trace.flush.size";
+
+    public static final String QUEUE_SIZE_KEY="trace.queue.buffer.size";
 
     public static final String DEFAULT_FLUSH_SIZE="1024";
 

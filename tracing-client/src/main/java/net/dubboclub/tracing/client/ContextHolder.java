@@ -12,7 +12,7 @@ import java.util.Stack;
  */
 public class ContextHolder {
 
-
+    //一个线程中span栈,用来存放一个线程中多个span情况
     private static ThreadLocal<Stack<Span>> localSpan = new ThreadLocal<Stack<Span>>(){
         @Override
         protected Stack<Span> initialValue() {

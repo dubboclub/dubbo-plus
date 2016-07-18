@@ -1,15 +1,22 @@
 package net.dubboclub.tracing.client.support;
 
+import com.alibaba.dubbo.common.Constants;
+import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.common.extension.ExtensionFactory;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.ConfigUtils;
+import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ConsumerConfig;
 import com.alibaba.dubbo.config.ReferenceConfig;
+import com.alibaba.dubbo.rpc.Protocol;
 import net.dubboclub.tracing.api.Span;
 import net.dubboclub.tracing.api.TracingCollector;
 import net.dubboclub.tracing.client.Configuration;
 import net.dubboclub.tracing.client.DstConstants;
 import net.dubboclub.tracing.client.SyncTransfer;
+import net.dubboclub.tracing.client.TracingCollectorFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +30,17 @@ public class DefaultSyncTransfer implements SyncTransfer {
 
     private static Logger logger = LoggerFactory.getLogger(DefaultSyncTransfer.class);
 
+    private Protocol protocol;
+
     private volatile TracingCollector collector;
     private volatile BlockingQueue<Span> queue;
     private volatile TransferTask transferTask;
 
     private volatile boolean inited=false;
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
 
     private class TransferTask extends Thread {
         private List<Span> cacheList;
@@ -41,17 +54,22 @@ public class DefaultSyncTransfer implements SyncTransfer {
 
         @Override
         public void run() {
-            if(!inited&&collector==null){
-                ReferenceConfig referenceConfig = new ReferenceConfig();
-                referenceConfig.setInterface(TracingCollector.class);
-                referenceConfig.setCheck(false);
-                collector = (TracingCollector) referenceConfig.get();
-            }
             while (!interrupted()) {
                 try {
                     Span first = queue.take();
                     cacheList.add(first);
                     queue.drainTo(cacheList, flushSizeInner);
+                    if(cacheList.size()<=0){
+                        continue;
+                    }
+                    if(!inited&&collector==null){
+                        TracingCollectorFactory tracingCollectorFactory = ExtensionLoader
+                                .getExtensionLoader(TracingCollectorFactory.class)
+                                .getExtension(ConfigUtils.getProperty(DstConstants.TRACING_COLLECTOR
+                                        ,DstConstants.DEFAULT_COLLECTOR_TYPE));
+                        collector =tracingCollectorFactory.getTracingCollector(URL.valueOf(ConfigUtils.getProperty(DstConstants.TRACING_REGISTRY_ADDRESS)));
+                        inited=true;
+                    }
                     collector.push(cacheList);
                     cacheList.clear();
                 } catch (InterruptedException e) {
