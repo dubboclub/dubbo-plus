@@ -13,9 +13,8 @@ public interface TracingCollectorFactory {
 
     /**
      * 监控链路的数据同步器
-     * @param url 注册中心的地址,zookeeper://ip:port/zkroot
      * @return
      */
-    public TracingCollector getTracingCollector(URL url);
+    public TracingCollector getTracingCollector();
 
 }

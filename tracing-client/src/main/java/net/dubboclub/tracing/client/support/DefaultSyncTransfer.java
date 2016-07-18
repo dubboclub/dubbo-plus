@@ -67,7 +67,7 @@ public class DefaultSyncTransfer implements SyncTransfer {
                                 .getExtensionLoader(TracingCollectorFactory.class)
                                 .getExtension(ConfigUtils.getProperty(DstConstants.TRACING_COLLECTOR
                                         ,DstConstants.DEFAULT_COLLECTOR_TYPE));
-                        collector =tracingCollectorFactory.getTracingCollector(URL.valueOf(ConfigUtils.getProperty(DstConstants.TRACING_REGISTRY_ADDRESS)));
+                        collector =tracingCollectorFactory.getTracingCollector();
                         inited=true;
                     }
                     collector.push(cacheList);

@@ -2,12 +2,18 @@ package net.dubboclub.tracing.client.support;
 
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.registry.Registry;
+import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Protocol;
 import com.alibaba.dubbo.rpc.ProxyFactory;
 import net.dubboclub.tracing.api.TracingCollector;
 import net.dubboclub.tracing.client.TracingCollectorFactory;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * AbstractTracingCollectorFactory
@@ -19,26 +25,28 @@ public abstract class AbstractTracingCollectorFactory implements TracingCollecto
 
 
     @Override
-    public TracingCollector getTracingCollector(URL url) {
-        String protocolName = url.getProtocol();
-        String root = url.getPath();
-        url=url.setProtocol(Constants.REGISTRY_PROTOCOL);
-        url=url.addParameter(Constants.REGISTRY_KEY,protocolName);
-        if(StringUtils.isNotEmpty(root)){
-            url=url.addParameter(Constants.GROUP_KEY,root);
+    public TracingCollector getTracingCollector() {
+        Collection<Registry> registries =  AbstractRegistryFactory.getRegistries();
+        List<URL> urls = new ArrayList<URL>();
+        for(Registry registry:registries){
+            URL url = registry.getUrl();
+            String protocolName = url.getProtocol();
+            url=url.setProtocol(Constants.REGISTRY_PROTOCOL);
+            url=url.addParameter(Constants.REGISTRY_KEY,protocolName);
+            url=url.setPath(TracingCollector.class.getName());
+            url=url.addParameter(Constants.INTERFACE_KEY,TracingCollector.class.getName());
+            url=url.addParameter(Constants.REFERENCE_FILTER_KEY,"-dst");
+            urls.add(url);
         }
-        url=url.setPath(TracingCollector.class.getName());
-        url=url.addParameter(Constants.INTERFACE_KEY,TracingCollector.class.getName());
-        url=url.addParameter(Constants.REFERENCE_FILTER_KEY,"-dst");
-        return createTracingCollector(url);
+        return createTracingCollector(urls);
     }
 
     /**
      *
-     * @param url registry://zkip:port/
+     * @param urls registry://zkip:port/
      * @return
      */
-    protected abstract TracingCollector createTracingCollector(URL url);
+    protected abstract TracingCollector createTracingCollector(List<URL> urls);
 
 
 }

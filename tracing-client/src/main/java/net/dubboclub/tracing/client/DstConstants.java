@@ -20,7 +20,6 @@ public class DstConstants {
 
     public static final String TRACING_COLLECTOR="tracing.collector.type";
 
-    public static final String TRACING_REGISTRY_ADDRESS="tracing.registry.address";
 
     public static final String FLUSH_SIZE_KEY="trace.flush.size";
 
