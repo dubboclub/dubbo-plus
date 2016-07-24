@@ -71,9 +71,10 @@ public class DefaultSyncTransfer implements SyncTransfer {
                         inited=true;
                     }
                     collector.push(cacheList);
-                    cacheList.clear();
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     logger.error("Dst-span-transfer-task-thread occur an error", e);
+                } finally {
+                    cacheList.clear();//在发生异常时也要保证数据被清理，不然会内存溢出
                 }
             }
         }
