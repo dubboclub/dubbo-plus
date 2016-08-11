@@ -103,7 +103,6 @@ public class Tracer {
             span.setTraceId(traceId);
             span.setServiceName(getServiceName());
             span.setName(getMethodName());
-
             ContextHolder.setSpan(span);
         }
 

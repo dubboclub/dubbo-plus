@@ -31,4 +31,10 @@ public class DstConstants {
 
     public static final String EXCEPTION = "exception";
 
+    public static final String ROCKET_MQ_NAME_SRV_ADD="rocket_mq_name_srv_add";
+
+    public static final String ROCKET_MQ_TOPIC="dst_span_topic";
+
+    public static final String ROCKET_MQ_PRODUCER="dst_span_producer";
+
 }

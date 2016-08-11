@@ -18,5 +18,10 @@
             <artifactId>tracing-api</artifactId>
             <version>0.0.6</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>3.5.7</version>
+        </dependency>
     </dependencies>
 </project>
