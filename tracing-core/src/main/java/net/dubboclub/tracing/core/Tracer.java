@@ -115,6 +115,10 @@ public class Tracer {
     }
 
     public static void addErrorAnnotation(Throwable throwable){
+        Span span = TracingContext.getCurrentSpan();
+        if(span!=null){
+            span.setHasError(true);
+        }
         addAnnotation("error",getCause(throwable).getClass().getName());
     }
 

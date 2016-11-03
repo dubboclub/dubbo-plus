@@ -74,7 +74,10 @@ public class Span {
      */
     private transient int nextRPCId = 0;
 
+    private boolean hasError;
+
     public static String START_RPC_ID="0";
+
 
 
 
@@ -97,6 +100,14 @@ public class Span {
         this.rpcId = rpcId;
     }
 
+
+    public boolean isHasError() {
+        return hasError;
+    }
+
+    protected void setHasError(boolean hasError){
+        this.hasError = hasError;
+    }
 
     protected String nextRPCId(){
         StringBuffer rpcId = new StringBuffer(getRpcId()).append(RPC_ID_SPLIT).append(nextRPCId);

@@ -16,22 +16,7 @@ public class SpanBean implements Serializable,Comparable<SpanBean> {
      */
     private String id;
 
-    @Override
-    public String toString() {
-        return "SpanBean{" +
-                "annotationList=" + annotationList +
-                ", id='" + id + '\'' +
-                ", traceId='" + traceId + '\'' +
-                ", bizType=" + bizType +
-                ", name='" + name + '\'' +
-                ", parentId='" + parentId + '\'' +
-                ", start=" + start +
-                ", end=" + end +
-                ", rpcId='" + rpcId + '\'' +
-                ", application='" + application + '\'' +
-                ", spanType=" + spanType +
-                '}';
-    }
+
 
     /**
      * 链路追踪id
@@ -83,6 +68,12 @@ public class SpanBean implements Serializable,Comparable<SpanBean> {
      */
     private short spanType;
 
+
+    private boolean hasError;
+
+
+
+
     public SpanBean() {
     }
 
@@ -98,6 +89,15 @@ public class SpanBean implements Serializable,Comparable<SpanBean> {
         setSpanType(span.getSpanType().getType());
         setStart(span.getStart());
         setTraceId(span.getTraceId());
+        setHasError(span.isHasError());
+    }
+
+    public boolean isHasError() {
+        return hasError;
+    }
+
+    public void setHasError(boolean hasError) {
+        this.hasError = hasError;
     }
 
     public List<Annotation> getAnnotationList() {
@@ -191,5 +191,23 @@ public class SpanBean implements Serializable,Comparable<SpanBean> {
     @Override
     public int compareTo(SpanBean o) {
         return this.rpcId.compareTo(o.rpcId);
+    }
+
+    @Override
+    public String toString() {
+        return "SpanBean{" +
+                "annotationList=" + annotationList +
+                ", id='" + id + '\'' +
+                ", traceId='" + traceId + '\'' +
+                ", bizType=" + bizType +
+                ", name='" + name + '\'' +
+                ", parentId='" + parentId + '\'' +
+                ", start=" + start +
+                ", end=" + end +
+                ", rpcId='" + rpcId + '\'' +
+                ", application='" + application + '\'' +
+                ", spanType=" + spanType +
+                ", hasError=" + hasError +
+                '}';
     }
 }
