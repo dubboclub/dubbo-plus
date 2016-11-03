@@ -1,0 +1,1 @@
+default=net.dubboclub.tracing.core.collector.dubbo.DefaultTracingCollectorFactory

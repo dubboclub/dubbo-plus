@@ -1,0 +1,2 @@
+full=net.dubboclub.tracing.core.sampler.FullSampler
+ratio=net.dubboclub.tracing.core.sampler.RatioSampler

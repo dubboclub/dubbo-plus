@@ -1,0 +1,2 @@
+default=net.dubboclub.tracing.core.collector.DefaultTracingCollector
+dubbo=net.dubboclub.tracing.core.collector.dubbo.DubboTracingCollector
