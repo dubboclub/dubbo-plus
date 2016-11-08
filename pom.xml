@@ -22,7 +22,7 @@
         <java_source_version>1.6</java_source_version>
         <java_target_version>1.6</java_target_version>
         <file_encoding>UTF-8</file_encoding>
-
+        <junit.version>4.11</junit.version>
         <netty.version>4.0.24.Final</netty.version>
         <maven_source_plugin_version>2.1.1</maven_source_plugin_version>
         <maven_jar_plugin_version>2.3.2</maven_jar_plugin_version>
@@ -61,6 +61,11 @@
             <artifactId>fastjson</artifactId>
             <version>${fasejson.version}</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
     </dependencies>
     <modules>
         <module>cache</module>
@@ -68,7 +73,10 @@
         <module>dubbo-plus-all</module>
         <module>netty4</module>
         <module>dubbo-generator</module>
+        <module>restful</module>
         <module>cat-monitor</module>
+        <module>tracing-api</module>
+        <module>tracing-client</module>
     </modules>
     <build>
         <plugins>
