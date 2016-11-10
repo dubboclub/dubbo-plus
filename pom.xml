@@ -78,6 +78,7 @@
         <module>cat-monitor</module>
         <module>tracing-dubbo</module>
         <module>tracing-core</module>
+        <module>tracing-web</module>
     </modules>
     <build>
         <plugins>

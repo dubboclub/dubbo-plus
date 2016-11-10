@@ -7,7 +7,6 @@ import com.alibaba.dubbo.rpc.*;
 import net.dubboclub.tracing.core.Span;
 import net.dubboclub.tracing.core.Tracer;
 import net.dubboclub.tracing.core.collector.TracingCollector;
-import net.dubboclub.tracing.core.config.Config;
 
 /**
  * Created by Zetas on 2016/7/8.
@@ -23,13 +22,13 @@ public class TracingFilter implements Filter {
         startTracing(!isConsumerSide);
         try {
             RpcContext rpcContext = RpcContext.getContext();
-            Span span = null;
+            Span span;
             if(isConsumerSide){
-                span = Tracer.startSpan(isConsumerSide? Span.SpanType.SENDER: Span.SpanType.REVIVER,
+                span = Tracer.startSpan(isConsumerSide? Span.SpanType.REQUEST : Span.SpanType.RESPONSE,
                         generateSpanName(invoker.getInterface(),
                                 invocation.getMethodName(),isConsumerSide));
             }else{
-                span = Tracer.startSpan(isConsumerSide? Span.SpanType.SENDER: Span.SpanType.REVIVER,
+                span = Tracer.startSpan(isConsumerSide? Span.SpanType.REQUEST : Span.SpanType.RESPONSE,
                         generateSpanName(invoker.getInterface(),
                                 invocation.getMethodName(),isConsumerSide),rpcContext.getAttachment(Tracer.RPC_ID_KEY));
             }
@@ -44,6 +43,7 @@ public class TracingFilter implements Filter {
             throw e;
         } finally {
             Tracer.stopSpan();
+            Tracer.stopTracing();
         }
     }
 
@@ -57,7 +57,7 @@ public class TracingFilter implements Filter {
     private void startTracing(boolean isProviderEnd){
         if(isProviderEnd){
             RpcContext rpcContext = RpcContext.getContext();
-            Tracer.startTracing(rpcContext.getAttachment(Tracer.TRACE_ID_KEY));
+            Tracer.startTracing(rpcContext.getAttachments());
         }else{
             Tracer.startTracing();
         }

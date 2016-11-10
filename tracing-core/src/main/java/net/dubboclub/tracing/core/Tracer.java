@@ -5,6 +5,8 @@ import net.dubboclub.tracing.core.sampler.Sampler;
 import net.dubboclub.tracing.core.transfer.DefaultSyncTransfer;
 import net.dubboclub.tracing.core.transfer.SyncTransfer;
 
+import java.util.Map;
+
 /**
  * Tracer
  * Created by bieber.bibo on 16/11/2
@@ -26,17 +28,19 @@ public class Tracer {
 
     /**
      * 开始链路追踪,当当前链路是包含在其他链路里面
-     * @param traceId
+     * @param map
      */
-    public static void startTracing(String traceId){
-        TracingContext.setTraceId(traceId);
+    public static void startTracing(Map<String,String> map){
+        if(map!=null){
+            TracingContext.setTraceId(map.get(TRACE_ID_KEY));
+        }
     }
 
     /**
      * 开始链路追踪,该链路是初始链路
      */
     public static void startTracing(){
-        //do nothing
+        startTracing(null);
     }
 
 
@@ -85,6 +89,10 @@ public class Tracer {
             SpanBean spanBean = new SpanBean(span);
             syncTransfer.syncSend(spanBean);
         }
+    }
+
+    public static void stopTracing(){
+        TracingContext.clean();
     }
 
     public static String getTraceId(){

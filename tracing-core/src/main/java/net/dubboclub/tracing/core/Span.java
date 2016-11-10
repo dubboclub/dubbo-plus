@@ -83,7 +83,7 @@ public class Span {
 
     protected Span(SpanType spanType,String spanName,String rpcId) {
         this.traceId = TracingContext.getTraceId(true);
-        this.id = TracingContext.generateUUID();
+        this.id = TraceIdGenerator.generateTraceId();
         this.spanType = spanType;
         this.bizType = SpanBizType.LOCAL;
         this.start = System.currentTimeMillis();
@@ -181,9 +181,13 @@ public class Span {
 
     public enum SpanType{
         //发送端
-        SENDER((short) 0),
+        REQUEST((short) 0),
         //接收端
-        REVIVER((short) 1);
+        RESPONSE((short) 1),
+        //消息生产者
+        PRODUCER((short) 2),
+        //消息消费者
+        CONSUMER((short) 3);
 
         private short type;
 

@@ -51,7 +51,7 @@ public class TracingContext {
     protected static String getTraceId(boolean newInNotExist){
         String traceId = TRACE_ID.get();
         if(newInNotExist&&StringUtils.isBlank(traceId)){
-            traceId = generateUUID();
+            traceId = TraceIdGenerator.generateTraceId();
             setTraceId(traceId);
         }
         return traceId;
@@ -103,14 +103,14 @@ public class TracingContext {
 
 
     protected static void clean(){
-        TRACE_ID.remove();
-        SPAN_STACK.remove();
+        Stack<Span> spanStack = SPAN_STACK.get();
+        if(spanStack==null||spanStack.empty()){
+            TRACE_ID.remove();
+            SPAN_STACK.remove();
+        }
     }
 
-    protected static String generateUUID(){
-        String traceId = UUID.randomUUID().toString();
-        return StringUtils.replace(traceId,"-","");
-    }
+
 
 
 
