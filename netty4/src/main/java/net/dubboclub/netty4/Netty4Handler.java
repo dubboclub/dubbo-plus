@@ -41,7 +41,7 @@ public class Netty4Handler extends SimpleChannelInboundHandler {
 
 
     @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Netty4Channel channel = Netty4Channel.getOrAddChannel(ctx.channel(), url, handler);
         try {
             if (channel != null) {
