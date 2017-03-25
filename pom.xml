@@ -69,12 +69,12 @@
     </dependencies>
     <modules>
         <module>cache</module>
-        <module>cricuitbreaker</module>
+        <module>circuitbreaker</module>
         <module>dubbo-plus-all</module>
         <module>netty4</module>
         <module>dubbo-generator</module>
         <module>restful</module>
-        <module>cat-monitor</module>
+        <!--<module>cat-monitor</module>-->
         <module>tracing-api</module>
         <module>tracing-client</module>
     </modules>

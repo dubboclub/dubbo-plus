@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>net.dubboclub</groupId>
-            <artifactId>cricuitbreaker</artifactId>
+            <artifactId>circuitbreaker</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -87,7 +87,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>net.dubboclub:cache</include>
-                                    <include>net.dubboclub:cricuitbreaker</include>
+                                    <include>net.dubboclub:circuitbreaker</include>
                                     <include>net.dubboclub:dubbo-generator</include>
                                     <include>net.dubboclub:netty4</include>
                                 </includes>
