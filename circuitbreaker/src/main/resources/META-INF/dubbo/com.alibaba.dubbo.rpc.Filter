@@ -1,0 +1,1 @@
+circuitBreaker=net.dubboclub.circuitbreaker.RemoteFacadeCircuitBreaker
