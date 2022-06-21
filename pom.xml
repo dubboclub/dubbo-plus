@@ -23,7 +23,7 @@
         <java_target_version>1.6</java_target_version>
         <file_encoding>UTF-8</file_encoding>
         <junit.version>4.11</junit.version>
-        <netty.version>4.0.24.Final</netty.version>
+        <netty.version>4.1.42.Final</netty.version>
         <maven_source_plugin_version>2.1.1</maven_source_plugin_version>
         <maven_jar_plugin_version>2.3.2</maven_jar_plugin_version>
         <maven_war_plugin_version>2.1.1</maven_war_plugin_version>
