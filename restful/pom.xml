@@ -17,7 +17,7 @@
         <zookeeper.version>3.4.14</zookeeper.version>
         <servlet.version>3.0.1</servlet.version>
         <jetty_version>6.1.26</jetty_version>
-        <httpclient_version>4.5.1</httpclient_version>
+        <httpclient_version>4.5.13</httpclient_version>
         <httpcore_version>4.4.3</httpcore_version>
         <commons-codec.version>1.9</commons-codec.version>
     </properties>
