@@ -14,7 +14,7 @@
 
     <properties>
         <zkclient.version>0.3</zkclient.version>
-        <zookeeper.version>3.4.14</zookeeper.version>
+        <zookeeper.version>3.7.2</zookeeper.version>
         <servlet.version>3.0.1</servlet.version>
         <jetty_version>6.1.26</jetty_version>
         <httpclient_version>4.5.13</httpclient_version>
